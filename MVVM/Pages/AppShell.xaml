@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell x:Class="WmMobileInventory.MVVM.Pages.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"        
+       xmlns:local="clr-namespace:WmMobileInventory"
+       xmlns:pages="clr-namespace:WmMobileInventory.MVVM.Pages" 
+       Shell.BackgroundColor="{StaticResource WMGold}"
+       Shell.TitleColor="{StaticResource WMGreen}"
+       FlyoutBackdrop="{StaticResource WMSilver}">
+
+
+    <Shell.FlyoutIcon>
+        <FontImageSource FontFamily="MaterialSymbols"   Glyph="{x:Static local:IconFont.Menu}" />
+    </Shell.FlyoutIcon>
+
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="{StaticResource WMGold}"  HeightRequest="150" Padding="5">
+            <Image Source="wm_cypher_green.png" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
+
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid ColumnDefinitions=".2*,.8*" HeightRequest="75" RowSpacing="0" >
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter TargetName="background"
+                                         Property="Rectangle.Fill"
+                                         Value="{StaticResource WMGold}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter TargetName="background"
+                                     Property="Rectangle.Fill"
+                                     Value="{StaticResource WMGreen}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </VisualStateManager.VisualStateGroups>
+                <Image  HeightRequest="30" Source="{Binding FlyoutIcon}" VerticalOptions="Center" />
+                <Label Grid.Column="1" Margin="20,0,0,0"  Text="{Binding Title}" TextColor="{StaticResource WMGreen}"  VerticalOptions="Center" FontAttributes="Bold" FontSize="Large" />
+                <Rectangle x:Name="background" Grid.ColumnSpan="2" Fill="{StaticResource WMGold}" Opacity=".1" Margin="1" />
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
+    <Shell.MenuItemTemplate>
+        <DataTemplate>
+            <Grid ColumnDefinitions=".2*,.8*" HeightRequest="75" RowSpacing="0" >
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter TargetName="background"
+                              Property="Rectangle.Fill"
+                              Value="{StaticResource WMGold}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter TargetName="background"
+                          Property="Rectangle.Fill"
+                          Value="{StaticResource WMGreen}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </VisualStateManager.VisualStateGroups>
+                <Image  HeightRequest="30" Source="{Binding FlyoutIcon}" VerticalOptions="Center" />
+                <Label Grid.Column="1" Margin="20,0,0,0"  Text="{Binding Title}" TextColor="{StaticResource WMGreen}"  VerticalOptions="Center" FontAttributes="Bold" FontSize="Large" />
+                <Rectangle x:Name="background" Grid.ColumnSpan="2" Fill="{StaticResource WMGold}" Opacity=".1" Margin="1" />
+            </Grid>
+        </DataTemplate>
+    </Shell.MenuItemTemplate>
+
+    <FlyoutItem Title="Scan Assets" Route="scanAssetPage">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Reader}" />
+        </FlyoutItem.Icon>
+        <Tab Title="Scan Assets">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Reader}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:ScanAssetPage}" Title="Scan Assets">
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Reader}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
+    </FlyoutItem>
+
+    <FlyoutItem Title="View Inventory" Route="inventoryReviewPage">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Inventory}" />
+        </FlyoutItem.Icon>
+        <Tab Title="View Inventory" Route="inventored">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxNotChecked}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:InventoryReviewPage}" Title="Inventory Review" >
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxNotChecked}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
+        <!--<Tab Title="Found" Route="found">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxChecked}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate local:Inventory}" Title="Found" >
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxChecked}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>-->
+    </FlyoutItem>
+
+    <FlyoutItem Title="Logout" Route="loginPage">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Logout}" />
+        </FlyoutItem.Icon>
+        <Tab Title="Home" Route="Home">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Login}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:LoginPage}" Title="Home">
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Logout}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
+    </FlyoutItem>
+</Shell>

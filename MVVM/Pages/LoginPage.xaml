@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WmMobileInventory.MVVM.Pages.LoginPage"
+             Title="Login"
+             Shell.NavBarIsVisible="False"
+             >
+    <ScrollView>
+        <VerticalStackLayout
+        Padding="10,0"
+        Spacing="25">
+            <Image
+            Source="wm_vertical_single_line_full_color.png"
+            HeightRequest="175"
+            Aspect="AspectFit"
+            SemanticProperties.Description="WM Logo" />
+
+            <Label
+          
+            Text="College of William &amp; Mary" 
+            Style="{StaticResource SubHeadline}"
+            
+            TextColor="{StaticResource WMGreen}"
+            SemanticProperties.HeadingLevel="Level2" />
+
+            <Label
+            Text="Asset Inventory System"
+            TextColor="{StaticResource WMGreen}"
+            Style="{StaticResource SubHeadline }"
+            SemanticProperties.HeadingLevel="Level2"
+            SemanticProperties.Description="" />
+
+            <Button
+            Text="Login"
+            BackgroundColor="{StaticResource WMGreen}"
+            TextColor="{StaticResource WMSilver}"
+            Command="{Binding LoginCommand }"
+            SemanticProperties.Hint="Login"
+            HorizontalOptions="Fill" />
+
+            <Label
+                Text="{Binding LoginMessage}"
+                TextColor="Red"
+                />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

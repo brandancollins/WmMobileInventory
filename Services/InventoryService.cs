@@ -25,7 +25,7 @@ namespace WmMobileInventory.Services
         Task<bool> ScanAssetAsync(string barcode);
         Task<bool> AddCommentToAssetAsync(InventoryAsset asset, string comment);
         Task<bool> MarkInventoryCompleteAsync(Schedule schedule);
-        void SetDepartment(string Department);
+        //void SetDepartment(string Department);
         void SetLocation(string Location);
         void SetRoom(string Room);
         // Additional methods as needed
@@ -64,15 +64,7 @@ namespace WmMobileInventory.Services
         {
            try
             {
-                // Logic to start inventory
-                _selectedScheduleID = schedule.Id;
-                CurrentDepartment = schedule.Department;
-                CurrentLocation = string.Empty;
-                CurrentRoom = string.Empty;
-
-                // get the inventory assets for this schedule.
-                _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
-                _inventoryLocations = new ObservableCollection<string>( SetAvailableLocations());
+                await SetInventorySchedule(schedule);
 
                 // update the schedule actual startdate.
                 Schedule updateSchedule = schedule;
@@ -85,6 +77,34 @@ namespace WmMobileInventory.Services
                 Debug.WriteLine(ex.Message);
                 return false;
             }
+        }
+
+        public async Task<bool> ContinueInventoryAsync(Schedule schedule)
+        {
+            try
+            {
+                await SetInventorySchedule(schedule);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        private async Task SetInventorySchedule(Schedule schedule)
+        {
+            // Logic to continue inventory
+            _selectedScheduleID = schedule.Id;
+            CurrentDepartment = schedule.Department;
+            CurrentLocation = string.Empty;
+            CurrentRoom = string.Empty;
+
+            // get the inventory assets for this schedule.
+            _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
+            _inventoryLocations = new ObservableCollection<string>(SetAvailableLocations());
         }
 
         private List<string> SetAvailableLocations()
@@ -107,30 +127,7 @@ namespace WmMobileInventory.Services
                     .Distinct()                                       // Get distinct rooms
                     .OrderBy(room => room)                            // Order by room
                     .ToList());                                        // Convert to list
-        }
-
-        public async Task<bool> ContinueInventoryAsync(Schedule schedule)
-        {
-            try
-            {
-                // Logic to continue inventory
-                _selectedScheduleID = schedule.Id;
-                CurrentDepartment = schedule.Department;
-                CurrentLocation = string.Empty;
-                CurrentRoom = string.Empty;
-
-                // get the inventory assets for this schedule.
-                _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
-                _inventoryLocations = new ObservableCollection<string>(SetAvailableLocations());
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return false;
-            }
-        }
+        }       
 
         //public List<string> GetInventoryLocations()
         //{
@@ -203,25 +200,25 @@ namespace WmMobileInventory.Services
             }
         }
 
-        public void SetDepartment(string Department)
-        {
-            if (Department != CurrentDepartment)
-            {
-                CurrentLocation = string.Empty;
-                CurrentRoom = string.Empty;
-            }
+        //public void SetDepartment(string Department)
+        //{
+        //    if (Department != CurrentDepartment)
+        //    {
+        //        CurrentLocation = string.Empty;
+        //        CurrentRoom = string.Empty;
+        //    }
 
-            CurrentDepartment = Department;
-        }
+        //    CurrentDepartment = Department;
+        //}
 
         public void SetLocation(string Location)
         {
             if (Location != CurrentLocation)
             {
                 CurrentRoom = string.Empty;
+                CurrentLocation = Location;
                 _inventoryRooms = new ObservableCollection<string>(SetAvailableRooms());
-            }
-            CurrentLocation = Location;
+            }            
         }        
 
         public void SetRoom(string Room)

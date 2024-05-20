@@ -25,7 +25,7 @@ public partial class LoginPageViewModel : ObservableObject
         if (_authService.IsLoggedIn)
         {
             LoginMessage = string.Empty;
-            await Shell.Current.GoToAsync("//scanAssetPage"); // Navigate to a different page after login
+            await Shell.Current.GoToAsync("//inventory/selectDeptPage"); // Navigate to a different page after login
         }       
     }
 }

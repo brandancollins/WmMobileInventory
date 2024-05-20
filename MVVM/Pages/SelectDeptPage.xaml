@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WmMobileInventory.MVVM.Pages.SelectDeptPage"
+             Title="{Binding TitleText}">
+    
+    <VerticalStackLayout Padding="20" VerticalOptions="Center" >        
+        
+        <Label Text="Select a department from the list" 
+               FontSize="Medium" 
+               HorizontalOptions="Center" />
+
+        <!-- ListView -->
+        <ListView ItemsSource="{Binding Schedules}" SelectionMode="Single"
+                  SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
+                  HeightRequest="200">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Department}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Picker -->
+        <!--<Picker ItemsSource="{Binding Schedules}"
+                ItemDisplayBinding="{Binding Department}"
+                SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
+                Title="Select an item" />-->
+        
+        <Label Text="{Binding SelectedSchedule.Department}" 
+               FontSize="Large" 
+               HorizontalOptions="Center" />
+
+            <Button Margin="20"
+                FontSize="Medium"
+                Text="{Binding ButtonText}" IsVisible="{Binding ButtonVisible}"
+                BackgroundColor="{StaticResource WMGreen}"
+                TextColor="{StaticResource WMSilver}"
+                Command="{Binding StartContinueCommand }"                
+                HorizontalOptions="Fill" />
+
+            <Button Margin="20"
+                FontSize="Medium"
+                Text="Complete Inventory" IsVisible="{Binding CompleteButtonVisible}"
+                BackgroundColor="{StaticResource WMGold}"
+                TextColor="{StaticResource WMWrenTwilight}"
+                Command="{Binding CompleteInventoryCommand }"                
+                HorizontalOptions="Fill" />
+    </VerticalStackLayout>
+</ContentPage>

@@ -79,11 +79,41 @@
         </DataTemplate>
     </Shell.MenuItemTemplate>
 
-    <FlyoutItem Title="Scan Assets" Route="scanAssetPage">
+    <FlyoutItem Title="Scan Assets" Route="inventory" >
         <FlyoutItem.Icon>
             <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Reader}" />
         </FlyoutItem.Icon>
-        <Tab Title="Scan Assets">
+        <Tab Title="Select Dept" Route="selectDeptPage">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Calendar}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:SelectDeptPage}" Title="Select Dept">
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Calendar}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
+        <Tab Title="Select Location" Route="selectLocationPage">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.PinDrop}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:SelectLocationPage}" Title="Select Location">
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.PinDrop}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
+        <Tab Title="Select Room" Route="selectRoomPage">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Room}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:SelectRoomPage}" Title="Select Room">
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Room}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
+        <Tab Title="Scan Assets" Route="scanAssetPage">
             <Tab.Icon>
                 <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Reader}" />
             </Tab.Icon>
@@ -95,30 +125,30 @@
         </Tab>
     </FlyoutItem>
 
-    <FlyoutItem Title="View Inventory" Route="inventoryReviewPage">
+    <FlyoutItem Title="Review Inventory" Route="inventoriedReviewPage">
         <FlyoutItem.Icon>
             <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Inventory}" />
         </FlyoutItem.Icon>
-        <Tab Title="View Inventory" Route="inventored">
+        <Tab Title="Not Inventoried" Route="notInventoried">
             <Tab.Icon>
                 <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxNotChecked}" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate pages:InventoryReviewPage}" Title="Inventory Review" >
+            <ShellContent ContentTemplate="{DataTemplate pages:NotInventoriedReviewPage}" Title="Inventory Review" >
                 <ShellContent.Icon>
                     <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxNotChecked}" />
                 </ShellContent.Icon>
             </ShellContent>
         </Tab>
-        <!--<Tab Title="Found" Route="found">
+        <Tab Title="Inventoried" Route="inventoried">
             <Tab.Icon>
                 <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxChecked}" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate local:Inventory}" Title="Found" >
+            <ShellContent ContentTemplate="{DataTemplate pages:InventoriedReviewPage}" Title="Inventory Review" >
                 <ShellContent.Icon>
                     <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxChecked}" />
                 </ShellContent.Icon>
             </ShellContent>
-        </Tab>-->
+        </Tab>        
     </FlyoutItem>
 
     <FlyoutItem Title="Logout" Route="loginPage">

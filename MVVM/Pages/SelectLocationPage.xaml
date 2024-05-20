@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WmMobileInventory.MVVM.Pages.SelectLocationPage"
+             Title="{Binding TitleText}">
+    
+    <VerticalStackLayout Padding="20">
+        <Label Text="Select a location from the list" 
+           FontSize="Medium" 
+           HorizontalOptions="Center" />
+
+        <!-- ListView -->
+        <ListView ItemsSource="{Binding Locations}" SelectionMode="Single"
+              SelectedItem="{Binding SelectedLocation, Mode=TwoWay}"
+              HeightRequest="200">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Department}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Label Text="{Binding SelectedLocation}" 
+           FontSize="Large" 
+           HorizontalOptions="Center" />
+
+        <Button Margin="20"
+            FontSize="Medium"
+            Text="Next =>" IsVisible="{Binding ButtonVisible}"
+            BackgroundColor="{StaticResource WMGreen}"
+            TextColor="{StaticResource WMSilver}"
+            Command="{Binding ContinueToRoomCommand }"                
+            HorizontalOptions="Fill" />
+
+    </VerticalStackLayout>
+</ContentPage>

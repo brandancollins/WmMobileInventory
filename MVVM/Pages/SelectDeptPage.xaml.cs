@@ -2,9 +2,9 @@ using WmMobileInventory.MVVM.ViewModels;
 
 namespace WmMobileInventory.MVVM.Pages;
 
-public partial class InventoryReviewPage : ContentPage
+public partial class SelectDeptPage : ContentPage
 {
-	public InventoryReviewPage(InventoryReviewPageViewModel vm)
+	public SelectDeptPage(SelectDeptPageViewModel vm)
 	{
 		InitializeComponent();
 		BindingContext = vm;

@@ -31,7 +31,7 @@
             SemanticProperties.Description="" />
 
             <Button
-            Text="Login"
+            Text="Login" FontSize="Medium"
             BackgroundColor="{StaticResource WMGreen}"
             TextColor="{StaticResource WMSilver}"
             Command="{Binding LoginCommand }"

@@ -24,15 +24,23 @@ namespace WmMobileInventory
     		builder.Logging.AddDebug();
 #endif
             // pages
-            builder.Services.AddSingleton<AppShell>();
+            builder.Services.AddTransient<AppShell>();
             builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<SelectDeptPage>();
+            builder.Services.AddTransient<SelectLocationPage>();
+            builder.Services.AddTransient<SelectRoomPage>();
             builder.Services.AddTransient<ScanAssetPage>();
-            builder.Services.AddTransient<InventoryReviewPage>();
+            builder.Services.AddTransient<InventoriedReviewPage>();
+            builder.Services.AddTransient<NotInventoriedReviewPage>();
 
             // view models
             builder.Services.AddTransient<LoginPageViewModel>();
+            builder.Services.AddTransient<SelectDeptPageViewModel>();
+            builder.Services.AddTransient<SelectLocationPageViewModel>();
+            builder.Services.AddTransient<SelectRoomPageViewModel>();
             builder.Services.AddTransient<ScanAssetPageViewModel>();
-            builder.Services.AddTransient<InventoryReviewPageViewModel>();
+            builder.Services.AddTransient<InventoriedReviewPageViewModel>();
+            builder.Services.AddTransient<NotInventoriedReviewPageViewModel>();
 
             // services
             builder.Services.AddSingleton<ConfigurationService>();
@@ -43,6 +51,7 @@ namespace WmMobileInventory
                   return new DatabaseService(configuration.AppSettings.ServiceUrl);
             });
             builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<IInventoryService, InventoryService>();
 
             return builder.Build();
         }

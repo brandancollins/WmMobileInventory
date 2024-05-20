@@ -15,7 +15,7 @@
               HeightRequest="200">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextCell Text="{Binding Department}" />
+                    <TextCell Text="{Binding}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

@@ -13,7 +13,7 @@ namespace WmMobileInventory.MVVM.ViewModels
         private readonly IInventoryService _inventoryService;        
 
         [ObservableProperty]
-        private ObservableCollection<Schedule> schedules;
+        private ObservableCollection<Schedule>? schedules;
 
         [ObservableProperty]
         private Schedule? selectedSchedule;
@@ -22,7 +22,7 @@ namespace WmMobileInventory.MVVM.ViewModels
         public string titleText;
 
         [ObservableProperty]
-        public string buttonText;
+        public string? buttonText;
 
         [ObservableProperty]
         public bool buttonVisible;
@@ -34,11 +34,16 @@ namespace WmMobileInventory.MVVM.ViewModels
         {
             TitleText = "Select Department";
             _inventoryService = inventoryService;
+             DoOtherInit();
+        }
+
+        private async void DoOtherInit()
+        {
             if (!string.IsNullOrEmpty(_inventoryService.CurrentDepartment))
             {
                 TitleText = _inventoryService.CurrentDepartment;
             }
-            var obj =  _inventoryService.GetSchedulesForUser().Result;
+            var obj = await _inventoryService.GetSchedulesForUser();
             Schedules = new ObservableCollection<Schedule>(obj);
             SelectedSchedule = null;
             ButtonText = string.Empty;
@@ -67,12 +72,12 @@ namespace WmMobileInventory.MVVM.ViewModels
                 CompleteButtonVisible = false;
                 if (SelectedSchedule.ActualStartDate == null)
                 {
-                    _inventoryService.SetDepartment(string.Empty);
+                    //_inventoryService.SetDepartment(string.Empty);
                     ButtonText = "Start Inventory";
                 }
                 else
                 {
-                    _inventoryService.SetDepartment(SelectedSchedule.Department);
+                    //_inventoryService.SetDepartment(SelectedSchedule.Department);
                     ButtonText = "Continue Inventory";
                     CompleteButtonVisible = true;
                 }
@@ -81,34 +86,34 @@ namespace WmMobileInventory.MVVM.ViewModels
         }
 
         [RelayCommand]
-        public void StartContinue()
+        public async Task StartContinue()
         {
             if (SelectedSchedule != null)
             {
                 if (SelectedSchedule.ActualStartDate == null)
                 {
                     // start the inventory.
-                    _inventoryService.StartInventoryAsync(SelectedSchedule);
+                    await _inventoryService.StartInventoryAsync(SelectedSchedule);
                 }
                 else
                 {
-                    _inventoryService.ContinueInventoryAsync(SelectedSchedule);
+                    await _inventoryService.ContinueInventoryAsync(SelectedSchedule);
                 }
                 ButtonText = "Continue Inventory";
-                Shell.Current.GoToAsync("//selectLocationPage");
+                await Shell.Current.GoToAsync("//selectLocationPage");
             }
         }
 
         [RelayCommand]
-        public void CompleteInventory()
+        public async Task CompleteInventory()
         {
             if (SelectedSchedule != null)
             {
-                _inventoryService.MarkInventoryCompleteAsync(SelectedSchedule);
+                _ = await _inventoryService.MarkInventoryCompleteAsync(SelectedSchedule);
                 CompleteButtonVisible = false;
                 ButtonVisible = false;
                 ButtonText = string.Empty;
-                var obj = _inventoryService.GetSchedulesForUser().Result;
+                var obj = await _inventoryService.GetSchedulesForUser();
                 Schedules = new ObservableCollection<Schedule>(obj);
             }
         }

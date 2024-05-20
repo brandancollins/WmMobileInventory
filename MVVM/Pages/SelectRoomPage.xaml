@@ -3,10 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WmMobileInventory.MVVM.Pages.SelectRoomPage"
              Title="{Binding TitleText}">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+    
+    <VerticalStackLayout Padding="20">
+        <Label Text="Select a room from the list" 
+       FontSize="Medium" 
+       HorizontalOptions="Center" />
+
+        <!-- ListView -->
+        <ListView ItemsSource="{Binding Rooms}" SelectionMode="Single"
+          SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+          HeightRequest="200">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Label Margin="20" Text="{Binding SelectedRoom}" 
+           FontSize="Large" 
+           HorizontalOptions="Center" />
+
+        <Button Margin="20"
+            FontSize="Medium"
+            Text="Next =>" IsVisible="{Binding ButtonVisible}"
+            BackgroundColor="{StaticResource WMGreen}"
+            TextColor="{StaticResource WMSilver}"
+            Command="{Binding ContinueToScanAssetsCommand }"                
+            HorizontalOptions="Fill" />
+
     </VerticalStackLayout>
 </ContentPage>

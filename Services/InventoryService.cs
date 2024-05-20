@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -17,21 +18,21 @@ namespace WmMobileInventory.Services
         Task<bool> StartInventoryAsync(Schedule schedule);
         Task<bool> ContinueInventoryAsync(Schedule schedule);
         IEnumerable<InventoryAsset> GetInventoryAssets();
-        List<string> GetInventoryLocations();
+        ObservableCollection<string> Locations { get; }
+        ObservableCollection<string> Rooms { get; }
+        //List<string> GetInventoryRooms();
         Task<IEnumerable<Schedule>> GetSchedulesForUser();
         Task<bool> ScanAssetAsync(string barcode);
         Task<bool> AddCommentToAssetAsync(InventoryAsset asset, string comment);
         Task<bool> MarkInventoryCompleteAsync(Schedule schedule);
         void SetDepartment(string Department);
         void SetLocation(string Location);
+        void SetRoom(string Room);
         // Additional methods as needed
     }
 
     public class InventoryService : IInventoryService
     {
-        private readonly object _syncRoot = new object();
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
         private readonly CurrentUser _currentUser;
         public string CurrentDepartment { get; private set; }
         public string CurrentLocation { get; private set; }
@@ -41,7 +42,11 @@ namespace WmMobileInventory.Services
         private readonly DatabaseService _databaseService;
         private IEnumerable<InventoryAsset> _inventoryAssets;
         private IEnumerable<Schedule> _schedules;
-        private List<string> _inventoryLocations;
+        private ObservableCollection<string> _inventoryLocations = new ObservableCollection<string>();
+        public ObservableCollection<string> Locations => _inventoryLocations;
+
+        private ObservableCollection<string> _inventoryRooms = new ObservableCollection<string>();
+        public ObservableCollection<string> Rooms => _inventoryRooms;
 
         public InventoryService(IAuthService authService, DatabaseService databaseService)
         {
@@ -50,7 +55,6 @@ namespace WmMobileInventory.Services
             _databaseService = databaseService;
             _inventoryAssets = Enumerable.Empty<InventoryAsset>();
             _schedules = Enumerable.Empty<Schedule>();
-            _inventoryLocations = new List<string>();
             CurrentDepartment = string.Empty;
             CurrentLocation = string.Empty;
             CurrentRoom = string.Empty; 
@@ -58,15 +62,17 @@ namespace WmMobileInventory.Services
 
         public async Task<bool> StartInventoryAsync(Schedule schedule)
         {
-            await _semaphore.WaitAsync();
-            try
+           try
             {
                 // Logic to start inventory
                 _selectedScheduleID = schedule.Id;
                 CurrentDepartment = schedule.Department;
+                CurrentLocation = string.Empty;
+                CurrentRoom = string.Empty;
 
                 // get the inventory assets for this schedule.
                 _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
+                _inventoryLocations = new ObservableCollection<string>( SetAvailableLocations());
 
                 // update the schedule actual startdate.
                 Schedule updateSchedule = schedule;
@@ -79,24 +85,44 @@ namespace WmMobileInventory.Services
                 Debug.WriteLine(ex.Message);
                 return false;
             }
-            finally
-            {
-                _semaphore.Release();
-            }
+        }
+
+        private List<string> SetAvailableLocations()
+        {
+            // Assuming _inventoryAssets is already initialized and populated
+            _inventoryRooms = new ObservableCollection<string>();
+            return (_inventoryAssets
+                        .Select(asset => asset.Location)  // Select the location
+                        .Distinct()                       // Get distinct locations
+                        .OrderBy(location => location)    // Order by location
+                        .ToList());                        // Convert to list
+        }
+
+        private List<string> SetAvailableRooms()
+        {
+            // Assuming _inventoryAssets is already initialized and populated
+            return ( _inventoryAssets
+                    .Where(asset => asset.Location == CurrentLocation) // Filter by location
+                    .Select(asset => asset.Room)                       // Select the room
+                    .Distinct()                                       // Get distinct rooms
+                    .OrderBy(room => room)                            // Order by room
+                    .ToList());                                        // Convert to list
         }
 
         public async Task<bool> ContinueInventoryAsync(Schedule schedule)
         {
-            await _semaphore.WaitAsync();
             try
             {
                 // Logic to continue inventory
                 _selectedScheduleID = schedule.Id;
                 CurrentDepartment = schedule.Department;
+                CurrentLocation = string.Empty;
+                CurrentRoom = string.Empty;
 
                 // get the inventory assets for this schedule.
                 _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
-                
+                _inventoryLocations = new ObservableCollection<string>(SetAvailableLocations());
+
                 return true;
             }
             catch (Exception ex)
@@ -104,35 +130,22 @@ namespace WmMobileInventory.Services
                 Debug.WriteLine(ex.Message);
                 return false;
             }
-            finally
-            {
-                _semaphore.Release();
-            }
         }
 
-        public List<string> GetInventoryLocations()
-        {
-            lock (_syncRoot)
-            {
-                // Assuming _inventoryAssets is already initialized and populated
-                _inventoryLocations = _inventoryAssets
-                .Select(asset => asset.Location)  // Select the location
-                .Distinct()                       // Get distinct locations
-                .OrderBy(location => location)    // Order by location
-                .ToList();                        // Convert to list
+        //public List<string> GetInventoryLocations()
+        //{
+        //    return _inventoryLocations;         
+        //}
 
-                return _inventoryLocations;
-            }
-        }
+        //public List<string> GetInventoryRooms()
+        //{
+        //    return _inventoryRooms;
+        //}
 
 
         public IEnumerable<InventoryAsset> GetInventoryAssets()
-        {
-            lock (_syncRoot)
-            {
-                // Logic to get assets for inventory
-                return _inventoryAssets;
-            }
+        {           
+            return _inventoryAssets;
         }
 
         public async Task<bool> ScanAssetAsync(string barcode)
@@ -149,7 +162,6 @@ namespace WmMobileInventory.Services
 
         public async Task<bool> MarkInventoryCompleteAsync(Schedule schedule)
         {
-            await _semaphore.WaitAsync();
             try
             {
                 // update the schedule actual completeddate.
@@ -158,7 +170,7 @@ namespace WmMobileInventory.Services
                 await _databaseService.AssetDataRepository.UpdateSchedule(updateSchedule);            
                 _inventoryAssets = Enumerable.Empty<InventoryAsset>();
                 _schedules = Enumerable.Empty<Schedule>();
-                _inventoryLocations = new List<string>();
+                _inventoryLocations = new ObservableCollection<string>();
                 CurrentDepartment = string.Empty;
                 CurrentLocation = string.Empty;
                 CurrentRoom = string.Empty;
@@ -169,15 +181,10 @@ namespace WmMobileInventory.Services
                 Debug.WriteLine(ex.Message);
                 return false;
             }
-            finally
-            {
-                _semaphore.Release();
-            }
         }
 
         public async Task<IEnumerable<Schedule>> GetSchedulesForUser()
         {
-            await _semaphore.WaitAsync();
             try
             {
                 _schedules = await _databaseService.AssetDataRepository.GetSchedules();
@@ -194,27 +201,33 @@ namespace WmMobileInventory.Services
                 Debug.WriteLine(ex.Message);
                 return Enumerable.Empty<Schedule>();
             }
-            finally
-            {
-                _semaphore.Release();
-            }
         }
 
         public void SetDepartment(string Department)
         {
-            lock (_syncRoot)
+            if (Department != CurrentDepartment)
             {
-                CurrentDepartment = Department;
+                CurrentLocation = string.Empty;
+                CurrentRoom = string.Empty;
             }
+
+            CurrentDepartment = Department;
         }
 
         public void SetLocation(string Location)
         {
-            lock (_syncRoot)
+            if (Location != CurrentLocation)
             {
-                CurrentLocation = Location;
+                CurrentRoom = string.Empty;
+                _inventoryRooms = new ObservableCollection<string>(SetAvailableRooms());
             }
+            CurrentLocation = Location;
         }        
+
+        public void SetRoom(string Room)
+        {
+            CurrentRoom = Room;
+        }
     }
 
 }

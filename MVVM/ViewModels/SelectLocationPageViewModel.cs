@@ -1,14 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WmAssetWebServiceClientNet.Models;
 using WmMobileInventory.Services;
 
 namespace WmMobileInventory.MVVM.ViewModels
@@ -16,10 +10,7 @@ namespace WmMobileInventory.MVVM.ViewModels
     public partial class SelectLocationPageViewModel : ObservableObject
     {
         private readonly IInventoryService _inventoryService;
-        private readonly IEnumerable<InventoryAsset> _inventoryAssets;
-
-        [ObservableProperty]
-        public ObservableCollection<string> locations;
+        public ObservableCollection<string> Locations => _inventoryService.Locations;
 
         [ObservableProperty]
         public string selectedLocation;
@@ -38,10 +29,7 @@ namespace WmMobileInventory.MVVM.ViewModels
             {
                 TitleText = _inventoryService.CurrentLocation;                            
             }
-            _inventoryAssets = _inventoryService.GetInventoryAssets();
-            Locations = new ObservableCollection<string>(_inventoryAssets.Select(asset => asset.Location).Distinct().OrderBy(location => location));
-            //var obj = _inventoryService.GetInventoryLocations();
-            //Locations = new ObservableCollection<string>(obj);
+
             SelectedLocation = string.Empty;
             ButtonVisible = false;
         }

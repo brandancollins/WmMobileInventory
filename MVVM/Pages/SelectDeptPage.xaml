@@ -13,7 +13,7 @@
         <!-- ListView -->
         <ListView ItemsSource="{Binding Schedules}" SelectionMode="Single"
                   SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
-                  HeightRequest="200">
+                  HeightRequest="350" VerticalOptions="Start">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <TextCell Text="{Binding Department}" />

@@ -15,6 +15,11 @@ namespace WmMobileInventory.MVVM.ViewModels
             TitleText = "Scan Assets";
             _inventoryService = inventoryService;
 
+            SetTitleText();
+        }
+
+        public void SetTitleText()
+        {
             if (!string.IsNullOrEmpty(_inventoryService.CurrentLocation) && !string.IsNullOrEmpty(_inventoryService.CurrentRoom))
             {
                 TitleText = _inventoryService.CurrentLocation + " : " + _inventoryService.CurrentRoom;

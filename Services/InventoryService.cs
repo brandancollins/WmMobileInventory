@@ -26,8 +26,8 @@ namespace WmMobileInventory.Services
         Task<bool> AddCommentToAssetAsync(InventoryAsset asset, string comment);
         Task<bool> MarkInventoryCompleteAsync(Schedule schedule);
         //void SetDepartment(string Department);
-        void SetLocation(string Location);
-        void SetRoom(string Room);
+        Task<bool> SetLocation(string Location);
+        Task<bool> SetRoom(string Room);
         // Additional methods as needed
     }
 
@@ -104,24 +104,25 @@ namespace WmMobileInventory.Services
 
             // get the inventory assets for this schedule.
             _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
-            _inventoryLocations = new ObservableCollection<string>(SetAvailableLocations());
+            _inventoryLocations = new ObservableCollection<string>(await SetAvailableLocationsAsync());
         }
 
-        private List<string> SetAvailableLocations()
+        private Task<List<string>> SetAvailableLocationsAsync()
         {
-            // Assuming _inventoryAssets is already initialized and populated
             _inventoryRooms = new ObservableCollection<string>();
-            return (_inventoryAssets
-                        .Select(asset => asset.Location)  // Select the location
-                        .Distinct()                       // Get distinct locations
-                        .OrderBy(location => location)    // Order by location
-                        .ToList());                        // Convert to list
+            return Task.FromResult(_inventoryAssets
+                                      .Select(asset => asset.Location)  // Select the location
+                                      .Distinct()                       // Get distinct locations
+                                      .OrderBy(location => location)    // Order by location
+                                      .ToList());                       // Convert to list
         }
 
-        private List<string> SetAvailableRooms()
+
+
+        private Task<List<string>> SetAvailableRooms()
         {
             // Assuming _inventoryAssets is already initialized and populated
-            return ( _inventoryAssets
+            return  Task.FromResult(_inventoryAssets
                     .Where(asset => asset.Location == CurrentLocation) // Filter by location
                     .Select(asset => asset.Room)                       // Select the room
                     .Distinct()                                       // Get distinct rooms
@@ -211,19 +212,22 @@ namespace WmMobileInventory.Services
         //    CurrentDepartment = Department;
         //}
 
-        public void SetLocation(string Location)
+        public async Task<bool> SetLocation(string Location)
         {
             if (Location != CurrentLocation)
             {
                 CurrentRoom = string.Empty;
                 CurrentLocation = Location;
-                _inventoryRooms = new ObservableCollection<string>(SetAvailableRooms());
-            }            
-        }        
+                _inventoryRooms = new ObservableCollection<string>(await SetAvailableRooms().ConfigureAwait(false));
+            }
+            return true;
+        }
 
-        public void SetRoom(string Room)
+
+        public async Task<bool> SetRoom(string Room)
         {
             CurrentRoom = Room;
+            return true;
         }
     }
 

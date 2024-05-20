@@ -12,7 +12,7 @@
         <!-- ListView -->
         <ListView ItemsSource="{Binding Rooms}" SelectionMode="Single"
           SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
-          HeightRequest="200">
+          HeightRequest="350" VerticalOptions="Start">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <TextCell Text="{Binding}" />

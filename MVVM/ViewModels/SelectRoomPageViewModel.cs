@@ -11,6 +11,7 @@ namespace WmMobileInventory.MVVM.ViewModels
     {
         private readonly IInventoryService _inventoryService;
         public ObservableCollection<string> Rooms => _inventoryService.Rooms;
+
         [ObservableProperty]
         public string selectedRoom;
         [ObservableProperty]
@@ -20,8 +21,9 @@ namespace WmMobileInventory.MVVM.ViewModels
 
         public SelectRoomPageViewModel(IInventoryService inventoryService)
         {
-            TitleText = "Select Room";
             _inventoryService = inventoryService;
+
+            TitleText = "Select Room";
 
             if (!string.IsNullOrEmpty(_inventoryService.CurrentRoom))
             {
@@ -31,6 +33,12 @@ namespace WmMobileInventory.MVVM.ViewModels
             SelectedRoom = string.Empty;
             ButtonVisible = false;
         }
+
+        public void RefreshRooms()
+        {          
+            OnPropertyChanged(nameof(Rooms));
+        }
+
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
         {
@@ -42,14 +50,14 @@ namespace WmMobileInventory.MVVM.ViewModels
             }
         }
 
-        private void OnSelectedItemChanged()
+        private async void OnSelectedItemChanged()
         {
             // React to the selected item change
             Debug.WriteLine($"Selected Item: {SelectedRoom}");
             ButtonVisible = false;
             if (SelectedRoom != null && !string.IsNullOrEmpty(SelectedRoom))
             {
-                _inventoryService.SetRoom(SelectedRoom);
+               await _inventoryService.SetRoom(SelectedRoom);
                 ButtonVisible = true;
             }
         }

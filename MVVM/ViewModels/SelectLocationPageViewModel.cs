@@ -44,14 +44,14 @@ namespace WmMobileInventory.MVVM.ViewModels
             }
         }
 
-        private void OnSelectedItemChanged()
+        private async void OnSelectedItemChanged()
         {
             // React to the selected item change
             Debug.WriteLine($"Selected Item: {SelectedLocation}");
             ButtonVisible = false; 
             if (SelectedLocation != null && !string.IsNullOrEmpty(SelectedLocation))
             {
-                _inventoryService.SetLocation(SelectedLocation);
+                await _inventoryService.SetLocation(SelectedLocation);
                 ButtonVisible = true;
             }
         }

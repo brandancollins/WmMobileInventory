@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using WmMobileInventory.MVVM.ViewModels;
 using WmMobileInventory.Services;
 
 namespace WmMobileInventory.MVVM.Pages;
@@ -25,6 +26,22 @@ public partial class AppShell : Shell
                 if (_authService.IsLoggedIn)
                 {
                     await _authService.LogoutAsync();
+                }
+            }
+            if (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventory/selectRoomPage")
+            {
+                // Assuming your SelectRoomPage's BindingContext is set to SelectRoomPageViewModel
+                if (this.CurrentPage.BindingContext is SelectRoomPageViewModel viewModel)
+                {
+                    viewModel.RefreshRooms();
+                }
+            }
+            if (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventory/scanAssetPage")
+            {
+                // Assuming your SelectRoomPage's BindingContext is set to SelectRoomPageViewModel
+                if (this.CurrentPage.BindingContext is ScanAssetPageViewModel viewModel)
+                {
+                    viewModel.SetTitleText();
                 }
             }
         };

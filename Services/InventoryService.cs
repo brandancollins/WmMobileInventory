@@ -177,27 +177,27 @@ namespace WmMobileInventory.Services
 
         public async Task<IEnumerable<Schedule>> GetSchedulesForUser()
         {
-            //await _semaphore.WaitAsync();
+            await _semaphore.WaitAsync();
             try
             {
                 _schedules = await _databaseService.AssetDataRepository.GetSchedules();
-                _schedules = _schedules.Where(s=> !s.CompletedDate.HasValue);
-            if (_currentUser.AllDepartments == false)
-            {
-                _schedules = _schedules.Where(s => _currentUser.Departments.Contains(s.Department));
-            }
+                _schedules = _schedules.Where(s => !s.CompletedDate.HasValue);
+                if (_currentUser.AllDepartments == false)
+                {
+                    _schedules = _schedules.Where(s => _currentUser.Departments.Contains(s.Department));
+                }
 
-            return _schedules;
+                return _schedules;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 return Enumerable.Empty<Schedule>();
             }
-            //finally
-            //{
-            //    _semaphore.Release();
-            //}
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public void SetDepartment(string Department)

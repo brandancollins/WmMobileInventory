@@ -3,15 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WmMobileInventory.MVVM.Pages.SelectDeptPage"
              Title="{Binding TitleText}">
-    
-    <VerticalStackLayout Padding="20" VerticalOptions="Center" >        
-        
-        <Label Text="Select a department from the list" 
+
+    <Grid Padding="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".5*" />
+            <RowDefinition Height="3*" />
+            <RowDefinition Height=".5*" />
+            <RowDefinition Height=".75*" />
+            <RowDefinition Height=".75*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Text="Select a department from the list" 
                FontSize="Medium" 
                HorizontalOptions="Center" />
 
         <!-- ListView -->
-        <ListView ItemsSource="{Binding Schedules}" SelectionMode="Single"
+        <ListView Grid.Row="1" ItemsSource="{Binding Schedules}" SelectionMode="Single"
                   SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
                   HeightRequest="350" VerticalOptions="Start">
             <ListView.ItemTemplate>
@@ -27,11 +35,11 @@
                 SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
                 Title="Select an item" />-->
         
-        <Label Text="{Binding SelectedSchedule.Department}" 
+        <Label Grid.Row="2" Text="{Binding SelectedSchedule.Department}" 
                FontSize="Large" 
                HorizontalOptions="Center" />
 
-            <Button Margin="20"
+            <Button Grid.Row="3" Margin="20"
                 FontSize="Medium"
                 Text="{Binding ButtonText}" IsVisible="{Binding ButtonVisible}"
                 BackgroundColor="{StaticResource WMGreen}"
@@ -39,12 +47,12 @@
                 Command="{Binding StartContinueCommand }"                
                 HorizontalOptions="Fill" />
 
-            <Button Margin="20"
+            <Button Grid.Row="4" Margin="20"
                 FontSize="Medium"
                 Text="Complete Inventory" IsVisible="{Binding CompleteButtonVisible}"
                 BackgroundColor="{StaticResource WMGold}"
                 TextColor="{StaticResource WMWrenTwilight}"
                 Command="{Binding CompleteInventoryCommand }"                
                 HorizontalOptions="Fill" />
-    </VerticalStackLayout>
+    </Grid>
 </ContentPage>

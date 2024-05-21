@@ -1,22 +1,61 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:WmMobileInventory"
              x:Class="WmMobileInventory.MVVM.Pages.ScanAssetPage"
              Title="{Binding TitleText}">
-    <VerticalStackLayout Padding="20">
-        <Label Text="" Margin="15" />
-        <Entry Placeholder="Scan or Enter Barcode" 
-            Text="{Binding Barcode, Mode=TwoWay}" ReturnCommand="{Binding GetAssetByBarcodeCommand}"  />
+    
+        <Grid Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height=".5*" />                
+                <RowDefinition Height="4*" />
+                <RowDefinition Height=".75*" />
+                <RowDefinition Height="3*" />
+            </Grid.RowDefinitions>
 
-        <Button Text="Lookup" BackgroundColor="{StaticResource WMGreen}"
-             TextColor="{StaticResource WMSpiritGold}" FontSize="Large"
-             Command="{Binding GetAssetByBarcodeCommand}" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="85*" />
+                <ColumnDefinition Width="15*" />
+            </Grid.ColumnDefinitions>
+           
+            <Entry Grid.Row="0" Grid.Column="0" Placeholder="Scan or Enter Barcode" Text="{Binding Barcode, Mode=TwoWay}" ReturnCommand="{Binding GetAssetByBarcodeCommand}" />
+            <Button Margin="2" Padding="2" Grid.Row="0" Grid.Column="1" Text="" BackgroundColor="{StaticResource WMGreen}" TextColor="{StaticResource WMSpiritGold}" FontSize="Large" Command="{Binding GetAssetByBarcodeCommand}" >
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMSpiritGold}"  Glyph="{x:Static local:IconFont.Search}" />
+                </Button.ImageSource>
+            </Button>
 
         <!-- Display asset details -->
-        <Label Text="{Binding Asset.Ptag}" />
-        <Label Text="{Binding Asset.BuildingLocation}" />
-        <Label Text="{Binding Asset.Room}" />
-        <Label Text="{Binding Asset.AssetDescription}" />
-        <!-- Add more labels for other Asset properties as needed -->
-    </VerticalStackLayout>
+        <CollectionView BackgroundColor="Transparent" Margin="2" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding CurrentAsset}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="5">
+                        <Label Text="Ptag:" FontAttributes="Bold" />
+                        <Label Text="{Binding Ptag}" />
+
+                        <Label Text="Location:" FontAttributes="Bold" />
+                        <Label Text="{Binding Location}" />
+
+                        <Label Text="Room:" FontAttributes="Bold" />
+                        <Label Text="{Binding Room}" />
+
+                        <Label Text="Description:" FontAttributes="Bold" />
+                        <Label Text="{Binding AssetDescription}" />
+
+                        <Label Text="Comment:" FontAttributes="Bold" />
+                        <Label Text="{Binding Comment}" />
+
+                        <!-- Add more labels for other Asset properties as needed -->
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Edit Comment Button -->
+        <Button Grid.Row="2" 
+                Grid.ColumnSpan="2" 
+                Text="Edit Comment" Margin="5" 
+                BackgroundColor="{StaticResource WMGreen}" TextColor="{StaticResource WMSilver}" FontSize="Large" HorizontalOptions="Center" Command="{Binding AddEditCommentCommand}" />
+    </Grid>
+    
 </ContentPage>

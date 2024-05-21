@@ -5,17 +5,24 @@
              Title="Login"
              Shell.NavBarIsVisible="False"
              >
-    <ScrollView>
-        <VerticalStackLayout
-        Padding="10,0"
-        Spacing="25">
-            <Image
+    <Grid Padding="10" Margin="5" RowSpacing="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height=".3*" />
+            <RowDefinition Height=".3*" />
+            <RowDefinition Height="1.5*" />
+            <RowDefinition Height=".75*" />
+            <RowDefinition Height=".5*" />
+            <RowDefinition Height="AUTO" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0"
             Source="wm_vertical_single_line_full_color.png"
             HeightRequest="175"
             Aspect="AspectFit"
             SemanticProperties.Description="WM Logo" />
 
-            <Label
+        <Label Grid.Row="1"
           
             Text="College of William &amp; Mary" 
             Style="{StaticResource SubHeadline}"
@@ -23,14 +30,14 @@
             TextColor="{StaticResource WMGreen}"
             SemanticProperties.HeadingLevel="Level2" />
 
-            <Label
+        <Label Grid.Row="2"
             Text="Asset Inventory System"
             TextColor="{StaticResource WMGreen}"
             Style="{StaticResource SubHeadline }"
             SemanticProperties.HeadingLevel="Level2"
             SemanticProperties.Description="" />
 
-            <Button
+        <Button Margin="20" Grid.Row="4"
             Text="Login" FontSize="Medium"
             BackgroundColor="{StaticResource WMGreen}"
             TextColor="{StaticResource WMSilver}"
@@ -38,10 +45,9 @@
             SemanticProperties.Hint="Login"
             HorizontalOptions="Fill" />
 
-            <Label
+        <Label Grid.Row="5"
                 Text="{Binding LoginMessage}"
                 TextColor="Red"
                 />
-        </VerticalStackLayout>
-    </ScrollView>
+    </Grid>
 </ContentPage>

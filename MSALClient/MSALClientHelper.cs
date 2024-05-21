@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Android.Accounts;
 using Microsoft.Identity.Client;
 #if WINDOWS
 using Microsoft.Identity.Client.Desktop;
@@ -8,6 +9,7 @@ using Microsoft.Identity.Client.Desktop;
 using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.IdentityModel.Abstractions;
 using System.Diagnostics;
+using WmMobileInventory;
 
 namespace MAUI.MSALClient
 {
@@ -311,6 +313,20 @@ namespace MAUI.MSALClient
             if (this.PublicClientApplication == null) return;
 
             await this.PublicClientApplication.RemoveAsync(user).ConfigureAwait(false);
+            // clear the cache
+            try
+            {
+                var accounts = await this.PublicClientApplication.GetAccountsAsync();
+                while (accounts.Any())
+                {
+                    await this.PublicClientApplication.RemoveAsync(accounts.First());
+                    accounts = (await this.PublicClientApplication.GetAccountsAsync()).ToList();
+                }
+            }
+            catch (MsalException ex)
+            {
+                Debug.WriteLine($"Error signing out user: {ex.Message}");
+            }
         }
 
         /// <summary>

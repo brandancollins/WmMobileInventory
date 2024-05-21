@@ -21,7 +21,7 @@ public partial class AppShell : Shell
             Debug.WriteLine($"--- A navigation was performed: {e.Source}, " +
             $"from {e.Previous?.Location.ToString()} to {e.Current?.Location.ToString()}");
 
-            if (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//loginPage/Home")
+            if (e.Source == ShellNavigationSource.ShellItemChanged && e.Current.Location.ToString() == "//loginPage/Home")
             {
                 if (_authService.IsLoggedIn)
                 {

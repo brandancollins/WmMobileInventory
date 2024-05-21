@@ -1,4 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using WmAssetWebServiceClientNet.Models;
 using WmMobileInventory.Services;
 
 namespace WmMobileInventory.MVVM.ViewModels
@@ -6,13 +9,18 @@ namespace WmMobileInventory.MVVM.ViewModels
     public partial class ScanAssetPageViewModel : ObservableObject
     {
         private IInventoryService _inventoryService;
+        public ObservableCollection<InventoryAsset> CurrentAsset => _inventoryService.CurrentAsset;
 
         [ObservableProperty]
         public string titleText;
 
+        [ObservableProperty]
+        public string barcode;
+
         public ScanAssetPageViewModel(IInventoryService inventoryService) 
         {
             TitleText = "Scan Assets";
+            Barcode = string.Empty;
             _inventoryService = inventoryService;
 
             SetTitleText();
@@ -24,6 +32,24 @@ namespace WmMobileInventory.MVVM.ViewModels
             {
                 TitleText = _inventoryService.CurrentLocation + " : " + _inventoryService.CurrentRoom;
             }
+        }
+
+        [RelayCommand]
+        public async Task GetAssetByBarcode()
+        {
+            if (await _inventoryService.ScanAssetAsync(Barcode))
+            {
+                RefreshCurrentAsset();
+            }
+            else
+            {
+                // Handle the case where the asset was not found
+            }
+        }
+
+        public void RefreshCurrentAsset()
+        {
+            OnPropertyChanged(nameof(CurrentAsset));
         }
     }
 }

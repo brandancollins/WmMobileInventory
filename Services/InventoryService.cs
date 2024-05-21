@@ -16,11 +16,12 @@ namespace WmMobileInventory.Services
         string CurrentLocation { get; }
         string CurrentRoom { get; }
        
-        IEnumerable<InventoryAsset> GetInventoryAssets();       // This may not be needed.
+        List<InventoryAsset> GetInventoryAssets();       // This may not be needed.
 
         ObservableCollection<InventoryAsset> CurrentAsset { get; }
         ObservableCollection<string> Locations { get; }
         ObservableCollection<string> Rooms { get; }
+        ObservableCollection<string> Comments { get; }
 
         Task<bool> StartInventoryAsync(Schedule schedule);
         Task<bool> ContinueInventoryAsync(Schedule schedule);
@@ -42,7 +43,7 @@ namespace WmMobileInventory.Services
         private int _selectedScheduleID;
         private readonly IAuthService _authService;
         private readonly DatabaseService _databaseService;
-        private IEnumerable<InventoryAsset> _inventoryAssets;
+        private List<InventoryAsset> _inventoryAssets;
         private IEnumerable<Schedule> _schedules;
 
         private ObservableCollection<string> _inventoryLocations = new ObservableCollection<string>();
@@ -50,6 +51,9 @@ namespace WmMobileInventory.Services
 
         private ObservableCollection<string> _inventoryRooms = new ObservableCollection<string>();
         public ObservableCollection<string> Rooms => _inventoryRooms;
+
+        private ObservableCollection<string> _inventoryComments = new ObservableCollection<string>();
+        public ObservableCollection<string> Comments => _inventoryComments;
 
         private ObservableCollection<InventoryAsset> _currentAsset = new ObservableCollection<InventoryAsset>();
         public ObservableCollection<InventoryAsset> CurrentAsset => _currentAsset;
@@ -59,11 +63,28 @@ namespace WmMobileInventory.Services
             _authService = authService;
             _currentUser = _authService.CurrentUser;
             _databaseService = databaseService;
-            _inventoryAssets = Enumerable.Empty<InventoryAsset>();
+            _inventoryAssets = new List<InventoryAsset>();
             _schedules = Enumerable.Empty<Schedule>();
             CurrentDepartment = string.Empty;
             CurrentLocation = string.Empty;
-            CurrentRoom = string.Empty; 
+            CurrentRoom = string.Empty;
+            LoadComments();
+        }
+
+        private void LoadComments()
+        {
+            /* Canned Comments, adding Wrong location & Wrong room to the list.
+            Cannot access Barcode
+            Already Disposed
+            Wrong department
+            Cannot Find
+            Other (comment field opens for explanation)
+            */
+            _inventoryComments.Add("Cannot access Barcode");
+            _inventoryComments.Add("Already Disposed");
+            _inventoryComments.Add("Wrong department");
+            _inventoryComments.Add("Cannot Find");
+            _inventoryComments.Add("Other");
         }
 
         public async Task<bool> StartInventoryAsync(Schedule schedule)
@@ -109,7 +130,8 @@ namespace WmMobileInventory.Services
             CurrentRoom = string.Empty;
 
             // get the inventory assets for this schedule.
-            _inventoryAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
+            var ieInvAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
+            _inventoryAssets = ieInvAssets.ToList();
             _inventoryLocations = new ObservableCollection<string>(await SetAvailableLocationsAsync());
         }
 
@@ -137,7 +159,7 @@ namespace WmMobileInventory.Services
         }    
 
 
-        public IEnumerable<InventoryAsset> GetInventoryAssets()
+        public List<InventoryAsset> GetInventoryAssets()
         {           
             return _inventoryAssets;
         }
@@ -147,9 +169,102 @@ namespace WmMobileInventory.Services
             _currentAsset = new ObservableCollection<InventoryAsset>(_inventoryAssets.Where(asset => asset.Barcode == barcode));
             if (_currentAsset.Count == 0)
             {
+                await EvaluateNotFoundAsset(barcode);
                 return false;
             }
+            await EvaluateFoundAsset();
             return true;
+        }
+
+        public void UpdateInventoryAsset(InventoryAsset updatedAsset)
+        {
+            var index = _inventoryAssets.FindIndex(asset => asset.Id == updatedAsset.Id);
+
+            if (index != -1)
+            {
+                _inventoryAssets[index] = updatedAsset;
+            }
+        }
+
+            private async Task EvaluateFoundAsset()
+        {
+            // Check to make sure the asset is in the correct ResponsibleOrganization, and Location and Room,
+            // If it is then set its found property to true and its inventoried field to the current date.
+            // and it's personscanning to the current username.
+            InventoryAsset asset = _currentAsset[0];
+            asset.Found = true;
+            asset.Inventoried = DateTime.Now;
+            asset.PersonScanning = _currentUser.Username;
+
+            if (!(asset.ResponsibleOrganization == CurrentDepartment && asset.Location == CurrentLocation && asset.Room == CurrentRoom))
+            {
+                // This asset has a discrepancy set it's discrepancy flag.
+                asset.Discrepancy = true;
+                // Set the comment on the asset to Wrong department if the ResponsibleOrganization is wrong.
+                if (asset.ResponsibleOrganization != CurrentDepartment)
+                {
+                    asset.Comment = "Wrong Department";
+                }
+                // Set the comment on the asset to Wrong Location if the Location is wrong.
+                if (asset.Location != CurrentLocation)
+                {
+                    asset.Comment = "Wrong Location";
+                }
+                // Set the comment on the asset to Wrong Room if the Room is wrong. 
+                if (asset.Room != CurrentRoom)
+                {
+                    asset.Comment = "Wrong Room";
+                }
+                // Create a discrepancy record by calling the CreateDiscrepancy method.
+                await CreateDiscrepancy(asset);
+            }
+
+            //Update the asset in the database.                   
+            await _databaseService.AssetDataRepository.UpdateInventoryAsset(asset);
+            // Update the asset object in _currentAsset and _inventoryAsset.
+            _currentAsset.Clear();
+            _currentAsset.Add(asset);
+            UpdateInventoryAsset(asset);
+        }
+
+        private async Task CreateDiscrepancy(InventoryAsset asset)
+        {
+            // Retrieve the master asset from the database by barcode.
+            var masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(asset.Barcode);
+
+            // Create a discrepancy asset.
+            var discrepancyAsset = new Discrepancy
+            {
+                ResponsibleOrganization = CurrentDepartment,
+                ActualOrganization = asset.ResponsibleOrganization,
+                Location = CurrentLocation,
+                ActualLocation = asset.Location,
+                Room = CurrentRoom,
+                ActualRoom = asset.Room,
+                Barcode = asset.Barcode,
+                AssetDescription = masterAsset.AssetDescription,
+                Manufacturer = masterAsset.Manufacturer,
+                Make = masterAsset.Make,
+                Model = masterAsset.Model,
+                SerialNumber = masterAsset.SerialNumber,
+                Ptag = masterAsset.Ptag,
+                Otag = masterAsset.Otag,
+                Acquired = masterAsset.Acquired,
+                Inventoried = asset.Inventoried,
+                Custodian = masterAsset.Custodian,
+                EquipmentManager = masterAsset.EquipmentManager,
+                PersonScanning = asset.PersonScanning,
+                Comment = asset.Comment
+            };
+
+            // Save the discrepancy asset to the database.
+            await _databaseService.AssetDataRepository.CreateDiscrepancy(discrepancyAsset);
+        }
+
+        private async Task EvaluateNotFoundAsset(string barcode)
+        {
+            // Logic to evaluate not found asset
+            throw new NotImplementedException();
         }
 
         public async Task<bool> AddCommentToAssetAsync(InventoryAsset asset, string comment)
@@ -166,7 +281,7 @@ namespace WmMobileInventory.Services
                 Schedule updateSchedule = schedule;
                 updateSchedule.CompletedDate = DateTime.Now;
                 await _databaseService.AssetDataRepository.UpdateSchedule(updateSchedule);            
-                _inventoryAssets = Enumerable.Empty<InventoryAsset>();
+                _inventoryAssets = new List<InventoryAsset>();
                 _schedules = Enumerable.Empty<Schedule>();
                 _inventoryLocations = new ObservableCollection<string>();
                 CurrentDepartment = string.Empty;

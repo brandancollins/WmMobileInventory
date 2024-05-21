@@ -40,11 +40,7 @@ namespace WmMobileInventory.MVVM.ViewModels
             if (await _inventoryService.ScanAssetAsync(Barcode))
             {
                 RefreshCurrentAsset();
-            }
-            else
-            {
-                // Handle the case where the asset was not found
-            }
+            }            
         }
 
         public void RefreshCurrentAsset()

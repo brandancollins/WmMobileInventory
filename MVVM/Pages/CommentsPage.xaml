@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:WmMobileInventory"
+             x:Class="WmMobileInventory.MVVM.Pages.CommentsPage"
+             Title="CommentsPage">
+    <VerticalStackLayout>
+        <!-- Comment picker -->
+        <Picker x:Name="CommentPicker" Title="Select a comment">
+            <!-- Add your comment options here -->
+            <!-- Bind this Picker to a property in your view model -->
+        </Picker>
+
+        <!-- Edit control for custom comment -->
+        <Entry x:Name="CustomCommentEntry" Placeholder="Enter custom comment" IsEnabled="False">
+            <!-- Bind this Entry to a property in your view model -->
+        </Entry>
+
+        <!-- Save and Cancel buttons -->
+        <Button Text="Save" Command="{Binding AddEditCommentCommand}" />
+        <Button Text="Cancel" Command="{Binding CancelCommand}" />
+    </VerticalStackLayout>
+</ContentPage>

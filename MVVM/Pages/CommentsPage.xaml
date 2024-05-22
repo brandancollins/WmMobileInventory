@@ -4,20 +4,31 @@
              xmlns:local="clr-namespace:WmMobileInventory"
              x:Class="WmMobileInventory.MVVM.Pages.CommentsPage"
              Title="CommentsPage">
-    <VerticalStackLayout>
+    <Grid Padding="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".5*" />
+            <RowDefinition Height=".5*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height=".75*" />
+            <RowDefinition Height=".75*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <!-- Comment picker -->
-        <Picker x:Name="CommentPicker" Title="Select a comment">
+        <Picker Grid.Row="1" x:Name="CommentPicker" Title="Select a comment"  
+                ItemsSource="{Binding Comments}" 
+                SelectedItem="{Binding SelectedComment}">
             <!-- Add your comment options here -->
             <!-- Bind this Picker to a property in your view model -->
         </Picker>
 
         <!-- Edit control for custom comment -->
-        <Entry x:Name="CustomCommentEntry" Placeholder="Enter custom comment" IsEnabled="False">
+        <Entry Grid.Row="2" x:Name="CustomCommentEntry" Placeholder="Enter custom comment" 
+               Text="{Binding CommentText, Mode=TwoWay}" IsEnabled="{Binding CustomCommentEnabled}">
             <!-- Bind this Entry to a property in your view model -->
         </Entry>
 
         <!-- Save and Cancel buttons -->
-        <Button Text="Save" Command="{Binding AddEditCommentCommand}" />
-        <Button Text="Cancel" Command="{Binding CancelCommand}" />
-    </VerticalStackLayout>
+        <Button Grid.Row="3" Margin="20" BackgroundColor="{StaticResource WMGreen}" TextColor="{StaticResource WMSilver}" FontSize="Large"  Text="Save" Command="{Binding EditCommentCommand}" IsEnabled="{Binding ButtonSaveEnbabled}" />
+        <Button Grid.Row="4" Margin="20" BackgroundColor="{StaticResource WMGreen}"  FontSize="Large" Text="Cancel" Command="{Binding EditCommentCancelCommand}" />
+    </Grid>
 </ContentPage>

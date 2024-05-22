@@ -27,7 +27,7 @@ namespace WmMobileInventory.Services
         Task<bool> ContinueInventoryAsync(Schedule schedule);
         Task<IEnumerable<Schedule>> GetSchedulesForUser();
         Task<bool> ScanAssetAsync(string barcode);
-        Task<bool> AddCommentToAssetAsync(InventoryAsset asset, string comment);
+        Task<bool> SaveComment(string comment);
         Task<bool> MarkInventoryCompleteAsync(Schedule schedule);
         Task<bool> SetLocation(string Location);
         Task<bool> SetRoom(string Room);
@@ -176,7 +176,7 @@ namespace WmMobileInventory.Services
             return true;
         }
 
-        public void UpdateInventoryAsset(InventoryAsset updatedAsset)
+        public void UpdateInventoryAssetList(InventoryAsset updatedAsset)
         {
             var index = _inventoryAssets.FindIndex(asset => asset.Id == updatedAsset.Id);
 
@@ -218,13 +218,17 @@ namespace WmMobileInventory.Services
                 // Create a discrepancy record by calling the CreateDiscrepancy method.
                 await CreateDiscrepancy(asset);
             }
+            await UpdateInventoryAsset(asset);
+        }
 
+        private async Task UpdateInventoryAsset(InventoryAsset asset)
+        {
             //Update the asset in the database.                   
             await _databaseService.AssetDataRepository.UpdateInventoryAsset(asset);
             // Update the asset object in _currentAsset and _inventoryAsset.
             _currentAsset.Clear();
             _currentAsset.Add(asset);
-            UpdateInventoryAsset(asset);
+            UpdateInventoryAssetList(asset);
         }
 
         private async Task CreateDiscrepancy(InventoryAsset asset)
@@ -261,17 +265,38 @@ namespace WmMobileInventory.Services
             await _databaseService.AssetDataRepository.CreateDiscrepancy(discrepancyAsset);
         }
 
+        public async Task<bool> SaveComment(string comment)
+        {
+            if (_currentAsset.Count == 0)
+            {
+                InventoryAsset asset = _currentAsset[0];
+                asset.Comment = comment;
+                await UpdateInventoryAsset(asset);
+
+                if (asset.Discrepancy == true)
+                {
+                    await UpdateDiscrepancy(asset);
+                }
+            }
+
+            return true;
+        }
+
+        private async Task UpdateDiscrepancy(InventoryAsset asset)
+        {
+            Discrepancy discrepancy = await _databaseService.AssetDataRepository.GetDiscrepancyByBarcode(asset.Barcode);
+            if (discrepancy != null)
+            {
+                discrepancy.Comment = asset.Comment;
+                await _databaseService.AssetDataRepository.UpdateDiscrepancy(discrepancy);
+            }
+        }
+
         private async Task EvaluateNotFoundAsset(string barcode)
         {
             // Logic to evaluate not found asset
             throw new NotImplementedException();
-        }
-
-        public async Task<bool> AddCommentToAssetAsync(InventoryAsset asset, string comment)
-        {
-            // Logic to add comment to asset
-            throw new NotImplementedException();
-        }
+        }        
 
         public async Task<bool> MarkInventoryCompleteAsync(Schedule schedule)
         {

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using WmAssetWebServiceClientNet.Models;
+using WmMobileInventory.MVVM.Pages;
 using WmMobileInventory.Services;
 
 namespace WmMobileInventory.MVVM.ViewModels
@@ -41,6 +42,16 @@ namespace WmMobileInventory.MVVM.ViewModels
             {
                 RefreshCurrentAsset();
             }            
+        }
+
+        [RelayCommand]
+        public async Task AddEditComment()
+        {
+            // Instantiate the CommentPage
+            var commentPage = new CommentsPage(new CommentPageViewModel(_inventoryService));
+
+            // Show it as a modal
+            await Shell.Current.Navigation.PushModalAsync(commentPage);
         }
 
         public void RefreshCurrentAsset()

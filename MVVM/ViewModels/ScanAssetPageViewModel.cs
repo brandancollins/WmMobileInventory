@@ -27,6 +27,9 @@ namespace WmMobileInventory.MVVM.ViewModels
         [ObservableProperty]
         public bool editButtonEnabled;
 
+        [ObservableProperty]
+        public bool assetDetailsButtonEnabled;
+
         public event EventHandler ScanCompleted;
 
         public ScanAssetPageViewModel(IInventoryService inventoryService)
@@ -34,6 +37,7 @@ namespace WmMobileInventory.MVVM.ViewModels
             TitleText = "Scan Assets";
             Barcode = string.Empty;
             EditButtonEnabled = false;
+            AssetDetailsButtonEnabled = false;
             _inventoryService = inventoryService;
 
             CurrentAsset = _inventoryService.CurrentAsset;
@@ -82,12 +86,23 @@ namespace WmMobileInventory.MVVM.ViewModels
             await Shell.Current.Navigation.PushModalAsync(commentPage);
         }
 
+        [RelayCommand]
+        public async Task ViewAssetDetails()
+        {
+           // Instantiate the AssetDetailsPage
+           var assetDetailsPage = new AssetDetailsPage(new AssetDetailsPageViewModel(_inventoryService));
+
+            // Show it as a modal
+            await Shell.Current.Navigation.PushModalAsync(assetDetailsPage);
+        }
+
         public void RefreshCurrentAsset()
         {
             // Manually trigger property changed
             CurrentAsset = new ObservableCollection<InventoryAsset>(_inventoryService.CurrentAsset);
-            EditButtonEnabled = CurrentAsset.Count > 0;       
-       
+            EditButtonEnabled = CurrentAsset.Count > 0;
+            AssetDetailsButtonEnabled = CurrentAsset.Count > 0;
+
         }
 
         protected virtual void OnScanCompleted()

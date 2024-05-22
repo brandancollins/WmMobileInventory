@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using WmMobileInventory.Services;
 
@@ -47,14 +46,9 @@ namespace WmMobileInventory.MVVM.ViewModels
                    
         }
 
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        partial void OnSelectedCommentChanged(string value)
         {
-            base.OnPropertyChanged(e);
-
-            if (e.PropertyName == nameof(SelectedComment))
-            {
-                OnSelectedItemChanged();
-            }
+            OnSelectedItemChanged();
         }
 
         private async void OnSelectedItemChanged()
@@ -73,21 +67,14 @@ namespace WmMobileInventory.MVVM.ViewModels
                 else
                 {
                     CustomCommentEnabled = true;
-                    if (!string.IsNullOrEmpty(CommentText))
-                    {
-                        ButtonSaveEnabled = true;
-                    }
-                    else
-                    {
-                        ButtonSaveEnabled = false;
-                    }
+                    ButtonSaveEnabled = !string.IsNullOrEmpty(CommentText);
                 }
             }
             else
             {
                 ButtonSaveEnabled = false;
                 CustomCommentEnabled = false;
-            }
+            }         
         }
 
 

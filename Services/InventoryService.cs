@@ -35,7 +35,7 @@ namespace WmMobileInventory.Services
         Task<bool> MarkInventoryCompleteAsync(Schedule schedule);
         Task<bool> SetLocation(string Location);
         Task<bool> SetRoom(string Room);
-        // Additional methods as needed
+        Task<Asset> GetMasterAsset();
     }
 
     public class InventoryService : IInventoryService
@@ -98,7 +98,7 @@ namespace WmMobileInventory.Services
 
         public async Task<bool> StartInventoryAsync(Schedule schedule)
         {
-           try
+            try
             {
                 await SetInventorySchedule(schedule);
 
@@ -159,17 +159,17 @@ namespace WmMobileInventory.Services
         private Task<List<string>> SetAvailableRooms()
         {
             // Assuming _inventoryAssets is already initialized and populated
-            return  Task.FromResult(_inventoryAssets
+            return Task.FromResult(_inventoryAssets
                     .Where(asset => asset.Location == CurrentLocation) // Filter by location
                     .Select(asset => asset.Room)                       // Select the room
                     .Distinct()                                       // Get distinct rooms
                     .OrderBy(room => room)                            // Order by room
                     .ToList());                                        // Convert to list
-        }    
+        }
 
 
         public List<InventoryAsset> GetInventoryAssets()
-        {           
+        {
             return _inventoryAssets;
         }
 
@@ -207,7 +207,7 @@ namespace WmMobileInventory.Services
             }
         }
 
-            private async Task EvaluateFoundAsset()
+        private async Task EvaluateFoundAsset()
         {
             // Check to make sure the asset is in the correct ResponsibleOrganization, and Location and Room,
             // If it is then set its found property to true and its inventoried field to the current date.
@@ -254,7 +254,7 @@ namespace WmMobileInventory.Services
             Asset? masterAsset = null;
             try
             {
-              masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(barcode);                
+                masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(barcode);
             }
             catch (System.Net.Http.HttpRequestException ex)
             {
@@ -358,13 +358,13 @@ namespace WmMobileInventory.Services
 
         private async Task CreateDiscrepancyByMaster(Asset masterAsset)
         {
-                       
+
 
             // Create a discrepancy asset.
             var discrepancyAsset = new Discrepancy
             {
                 ResponsibleOrganization = masterAsset.ResponsibleOrganization,
-                ActualOrganization = CurrentDepartment ,
+                ActualOrganization = CurrentDepartment,
                 Location = masterAsset.Location,
                 ActualLocation = CurrentLocation,
                 Room = masterAsset.Room,
@@ -419,6 +419,31 @@ namespace WmMobileInventory.Services
             // Save the discrepancy asset to the database.
             await _databaseService.AssetDataRepository.CreateDiscrepancy(discrepancyAsset);
         }
+
+        public async Task<Asset> GetMasterAsset()
+        {
+            Asset? masterAsset = null;
+
+            try
+            {
+                if (_currentAsset.Count > 0)
+                {
+                    masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(_currentAsset[0].Barcode);
+                }
+
+            }
+            catch (System.Net.Http.HttpRequestException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return masterAsset;
+        }
+        
+
 
         public async Task<bool> SaveComment(string comment)
         {

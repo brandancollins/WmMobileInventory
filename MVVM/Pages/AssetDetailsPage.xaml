@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WmMobileInventory.MVVM.Pages.AssetDetailsPage"
+             Title="AssetDetailsPage">
+
+    <Grid Padding="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <!-- Display asset details -->
+    <CollectionView Grid.Row="0" BackgroundColor="Transparent" Margin="2" ItemsSource="{Binding MasterAsset}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <StackLayout Padding="5">
+                    <Label Text="Resp Chart:" FontAttributes="Bold" />
+                    <Label Text="{Binding RespChart}" />
+
+                    <Label Text="Responsible Organization:" FontAttributes="Bold" />
+                    <Label Text="{Binding ResponsibleOrganization}" />
+                    <Label Text="Location:" FontAttributes="Bold" />
+                    <Label Text="{Binding Location}" />
+                    <Label Text="Room:" FontAttributes="Bold" />
+                    <Label Text="{Binding Room}" />
+                    <Label Text="Barcode:" FontAttributes="Bold" />
+                    <Label Text="{Binding Barcode}" />
+                    <Label Text="Asset Description:" FontAttributes="Bold" />
+                    <Label Text="{Binding AssetDescription}" />
+                    <Label Text="Manufacturer:" FontAttributes="Bold" />
+                    <Label Text="{Binding Manufacturer}" />
+                    <Label Text="Make:" FontAttributes="Bold" />
+                    <Label Text="{Binding Make}" />
+                    <Label Text="Model:" FontAttributes="Bold" />
+                    <Label Text="{Binding Model}" />
+                    <Label Text="Serial Number:" FontAttributes="Bold" />
+                    <Label Text="{Binding SerialNumber}" />
+                    <Label Text="Ptag:" FontAttributes="Bold" />
+                    <Label Text="{Binding Ptag}" />
+                    <Label Text="Otag:" FontAttributes="Bold" />
+                    <Label Text="{Binding Otag}" />
+                    <Label Text="Acquired:" FontAttributes="Bold" />
+                    <Label Text="{Binding Acquired}" />
+                    <Label Text="Inventoried:" FontAttributes="Bold" />
+                    <Label Text="{Binding Inventoried}" />
+                    <Label Text="Custodian:" FontAttributes="Bold" />
+                    <Label Text="{Binding Custodian}" />
+                    <Label Text="Custodian Id:" FontAttributes="Bold" />
+                    <Label Text="{Binding CustodianId}" />
+                    <Label Text="Equipment Manager:" FontAttributes="Bold" />
+                    <Label Text="{Binding EquipmentManager}" />
+                    <Label Text="Equipment Manager Id:" FontAttributes="Bold" />
+                    <Label Text="{Binding EquipmentId}" />
+                </StackLayout>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+
+        <!-- Close button -->
+        <Button Grid.Row="1" Margin="20" Text="Close" BackgroundColor="{StaticResource WMGreen}" TextColor="{StaticResource WMSilver}"
+                Command="{Binding CloseAssetDetailsCommand}" />
+    </Grid>
+    
+</ContentPage>

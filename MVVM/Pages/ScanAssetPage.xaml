@@ -8,10 +8,11 @@
         <Grid Padding="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height=".5*" />                
-                <RowDefinition Height="4*" />
-                <RowDefinition Height=".75*" />
                 <RowDefinition Height="3*" />
-            </Grid.RowDefinitions>
+                <RowDefinition Height=".65*" />
+                <RowDefinition Height=".65*" />
+                <RowDefinition Height=".3*" />
+        </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="85*" />
@@ -56,10 +57,16 @@
 
         <!-- Edit Comment Button -->
         <Button Grid.Row="2" 
-                Grid.ColumnSpan="2" 
+                Grid.ColumnSpan="2" WidthRequest="220"
                 Text="Edit Comment" Margin="5" IsEnabled="{Binding EditButtonEnabled}"
                 BackgroundColor="{StaticResource WMGreen}" 
                 TextColor="{StaticResource WMSilver}" FontSize="Large" HorizontalOptions="Center" Command="{Binding AddEditCommentCommand}" />
+
+        <Button Grid.Row="3" 
+            Grid.ColumnSpan="2" WidthRequest="220"
+            Text="View Asset Details" Margin="5" IsEnabled="{Binding AssetDetailsButtonEnabled}"
+            BackgroundColor="{StaticResource WMGreen}" 
+            TextColor="{StaticResource WMSilver}" FontSize="Large" HorizontalOptions="Center" Command="{Binding ViewAssetDetailsCommand}" />
     </Grid>
     
 </ContentPage>

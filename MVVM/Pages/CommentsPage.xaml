@@ -28,7 +28,11 @@
         </Entry>
 
         <!-- Save and Cancel buttons -->
-        <Button Grid.Row="3" Margin="20" BackgroundColor="{StaticResource WMGreen}" TextColor="{StaticResource WMSilver}" FontSize="Large"  Text="Save" Command="{Binding EditCommentCommand}" IsEnabled="{Binding ButtonSaveEnbabled}" />
-        <Button Grid.Row="4" Margin="20" BackgroundColor="{StaticResource WMGreen}"  FontSize="Large" Text="Cancel" Command="{Binding EditCommentCancelCommand}" />
+        <Button Grid.Row="3" Margin="20" BackgroundColor="{StaticResource WMGreen}" TextColor="{StaticResource WMSilver}" 
+        FontSize="Large" Text="Save" Command="{Binding EditCommentCommand}" IsEnabled="{Binding ButtonSaveEnabled}" />
+
+
+        <Button Grid.Row="4" Margin="20" BackgroundColor="{StaticResource WMGreen}"  FontSize="Large"
+                Text="Cancel" Command="{Binding EditCommentCancelCommand}" IsVisible="{Binding ButtonCancelVisible}" />
     </Grid>
 </ContentPage>

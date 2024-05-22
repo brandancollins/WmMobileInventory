@@ -10,7 +10,13 @@ namespace WmMobileInventory.MVVM.ViewModels
     public partial class ScanAssetPageViewModel : ObservableObject
     {
         private IInventoryService _inventoryService;
-        public ObservableCollection<InventoryAsset> CurrentAsset => _inventoryService.CurrentAsset;
+
+        private ObservableCollection<InventoryAsset> _currentAsset;
+        public ObservableCollection<InventoryAsset> CurrentAsset
+        {
+            get => _currentAsset;
+            set => SetProperty(ref _currentAsset, value);
+        }
 
         [ObservableProperty]
         public string titleText;
@@ -18,11 +24,19 @@ namespace WmMobileInventory.MVVM.ViewModels
         [ObservableProperty]
         public string barcode;
 
-        public ScanAssetPageViewModel(IInventoryService inventoryService) 
+        [ObservableProperty]
+        public bool editButtonEnabled;
+
+        public event EventHandler ScanCompleted;
+
+        public ScanAssetPageViewModel(IInventoryService inventoryService)
         {
             TitleText = "Scan Assets";
             Barcode = string.Empty;
+            EditButtonEnabled = false;
             _inventoryService = inventoryService;
+
+            CurrentAsset = _inventoryService.CurrentAsset;
 
             SetTitleText();
         }
@@ -41,7 +55,21 @@ namespace WmMobileInventory.MVVM.ViewModels
             if (await _inventoryService.ScanAssetAsync(Barcode))
             {
                 RefreshCurrentAsset();
-            }            
+            }
+            if (_inventoryService.Discrepancy)
+            {
+                await DisplayDiscrepancy();
+            }
+            OnScanCompleted();
+        }
+
+        private async Task DisplayDiscrepancy()
+        {
+            await Shell.Current.DisplayAlert("Discrepancy", _inventoryService.DiscrepancyMsg, "OK");
+            if (_inventoryService.DiscrepancyType != "Inventory" && _inventoryService.DiscrepancyType != "NotFound")
+            {
+                await AddEditComment();
+            }
         }
 
         [RelayCommand]
@@ -56,7 +84,15 @@ namespace WmMobileInventory.MVVM.ViewModels
 
         public void RefreshCurrentAsset()
         {
-            OnPropertyChanged(nameof(CurrentAsset));
+            // Manually trigger property changed
+            CurrentAsset = new ObservableCollection<InventoryAsset>(_inventoryService.CurrentAsset);
+            EditButtonEnabled = CurrentAsset.Count > 0;       
+       
+        }
+
+        protected virtual void OnScanCompleted()
+        {
+            ScanCompleted?.Invoke(this, EventArgs.Empty);
         }
     }
 }

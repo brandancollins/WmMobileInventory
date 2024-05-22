@@ -97,7 +97,7 @@
 
 	<ItemGroup>
 	  <Reference Include="WmAssetWebServiceClientNet">
-	    <HintPath>..\..\Users\Brandan\source\repos\WmAssetWebServiceClientNet\bin\Debug\net8.0\WmAssetWebServiceClientNet.dll</HintPath>
+	    <HintPath>..\WmAssetWebServiceClientNet\bin\Debug\net8.0\WmAssetWebServiceClientNet.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

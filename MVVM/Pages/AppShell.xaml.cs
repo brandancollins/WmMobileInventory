@@ -36,12 +36,14 @@ public partial class AppShell : Shell
                     viewModel.RefreshRooms();
                 }
             }
-            if (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventory/scanAssetPage")
+            if ((e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventory/scanAssetPage") ||
+                (e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventory/scanAssetPage"))
             {
                 // Assuming your SelectRoomPage's BindingContext is set to SelectRoomPageViewModel
                 if (this.CurrentPage.BindingContext is ScanAssetPageViewModel viewModel)
                 {
                     viewModel.SetTitleText();
+                    viewModel.RefreshCurrentAsset();
                 }
             }
         };

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Android.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -15,7 +16,10 @@ namespace WmMobileInventory.Services
         string CurrentDepartment { get; }
         string CurrentLocation { get; }
         string CurrentRoom { get; }
-       
+        bool Discrepancy { get; }
+        string DiscrepancyType { get; }
+        string DiscrepancyMsg { get; }
+
         List<InventoryAsset> GetInventoryAssets();       // This may not be needed.
 
         ObservableCollection<InventoryAsset> CurrentAsset { get; }
@@ -40,6 +44,9 @@ namespace WmMobileInventory.Services
         public string CurrentDepartment { get; private set; }
         public string CurrentLocation { get; private set; }
         public string CurrentRoom { get; private set; }
+        public bool Discrepancy { get; private set; }
+        public string DiscrepancyType { get; private set; }
+        public string DiscrepancyMsg { get; private set; }
         private int _selectedScheduleID;
         private readonly IAuthService _authService;
         private readonly DatabaseService _databaseService;
@@ -57,6 +64,8 @@ namespace WmMobileInventory.Services
 
         private ObservableCollection<InventoryAsset> _currentAsset = new ObservableCollection<InventoryAsset>();
         public ObservableCollection<InventoryAsset> CurrentAsset => _currentAsset;
+
+        private string _lastBarcode = string.Empty;
 
         public InventoryService(IAuthService authService, DatabaseService databaseService)
         {
@@ -164,16 +173,28 @@ namespace WmMobileInventory.Services
             return _inventoryAssets;
         }
 
+        private void ResetDiscrepancyObjects()
+        {
+            Discrepancy = false;
+            DiscrepancyType = string.Empty;
+            DiscrepancyMsg = string.Empty;
+        }
+
         public async Task<bool> ScanAssetAsync(string barcode)
         {
+            ResetDiscrepancyObjects();
+            _lastBarcode = barcode;
             _currentAsset = new ObservableCollection<InventoryAsset>(_inventoryAssets.Where(asset => asset.Barcode == barcode));
             if (_currentAsset.Count == 0)
             {
                 await EvaluateNotFoundAsset(barcode);
                 return false;
             }
-            await EvaluateFoundAsset();
-            return true;
+            else
+            {
+                await EvaluateFoundAsset();
+                return true;
+            }
         }
 
         public void UpdateInventoryAssetList(InventoryAsset updatedAsset)
@@ -200,6 +221,8 @@ namespace WmMobileInventory.Services
             {
                 // This asset has a discrepancy set it's discrepancy flag.
                 asset.Discrepancy = true;
+                Discrepancy = true;
+                DiscrepancyType = "Inventory";
                 // Set the comment on the asset to Wrong department if the ResponsibleOrganization is wrong.
                 if (asset.ResponsibleOrganization != CurrentDepartment)
                 {
@@ -217,8 +240,76 @@ namespace WmMobileInventory.Services
                 }
                 // Create a discrepancy record by calling the CreateDiscrepancy method.
                 await CreateDiscrepancy(asset);
+                DiscrepancyMsg = "Discrepancy found for asset " + asset.Barcode + ". Noted as " + asset.Comment + ". Please update comment as necessary";
             }
             await UpdateInventoryAsset(asset);
+        }
+
+        private async Task EvaluateNotFoundAsset(string barcode)
+        {
+            // an asset with this barcode wasn't found in the current inventory
+            // this is stored in _inventoryAssets, we need to see if it exists in
+            // the database masterassets table.
+            Discrepancy = true;
+            Asset? masterAsset = null;
+            try
+            {
+              masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(barcode);                
+            }
+            catch (System.Net.Http.HttpRequestException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+
+            if (masterAsset != null)
+            {
+                await CreateDiscrepancyByMaster(masterAsset);
+                DiscrepancyType = "MasterAssets";
+                DiscrepancyMsg = "Discrepancy found for asset " + barcode + ". Asset not found in current inventory, but found in master.  Please add a comment.";
+            }
+            else
+            {
+                // Not found in master check disposed.
+                DisposedAsset? disposedAsset = null;
+                try
+                {
+                    disposedAsset = await _databaseService.AssetDataRepository.GetDisposedAssetByBarcode(barcode);
+                }
+                catch (System.Net.Http.HttpRequestException ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                if (disposedAsset != null)
+                {
+                    await UpdateDisposedAsset(disposedAsset);
+                    await CreateDiscrepancyByDisposed(disposedAsset);
+                    DiscrepancyType = "DisposedAssets";
+                    DiscrepancyMsg = "Discrepancy found for asset " + barcode + ". Asset already disposed.  Please add a comment.";
+                }
+                else
+                {
+                    DiscrepancyType = "NotFound";
+                    DiscrepancyMsg = "Discrepancy found for asset " + barcode + ". Asset not found in database.";
+                }
+            }
+        }
+
+        private async Task UpdateDisposedAsset(DisposedAsset disposedAsset)
+        {
+            disposedAsset.Found = true;
+            disposedAsset.DateScanned = DateTime.Now;
+            disposedAsset.Location = CurrentLocation;
+            disposedAsset.Room = CurrentRoom;
+            await _databaseService.AssetDataRepository.UpdateDisposedAsset(disposedAsset);
         }
 
         private async Task UpdateInventoryAsset(InventoryAsset asset)
@@ -265,9 +356,74 @@ namespace WmMobileInventory.Services
             await _databaseService.AssetDataRepository.CreateDiscrepancy(discrepancyAsset);
         }
 
+        private async Task CreateDiscrepancyByMaster(Asset masterAsset)
+        {
+                       
+
+            // Create a discrepancy asset.
+            var discrepancyAsset = new Discrepancy
+            {
+                ResponsibleOrganization = masterAsset.ResponsibleOrganization,
+                ActualOrganization = CurrentDepartment ,
+                Location = masterAsset.Location,
+                ActualLocation = CurrentLocation,
+                Room = masterAsset.Room,
+                ActualRoom = CurrentRoom,
+                Barcode = masterAsset.Barcode,
+                AssetDescription = masterAsset.AssetDescription,
+                Manufacturer = masterAsset.Manufacturer,
+                Make = masterAsset.Make,
+                Model = masterAsset.Model,
+                SerialNumber = masterAsset.SerialNumber,
+                Ptag = masterAsset.Ptag,
+                Otag = masterAsset.Otag,
+                Acquired = masterAsset.Acquired,
+                Inventoried = DateTime.Now,
+                Custodian = masterAsset.Custodian,
+                EquipmentManager = masterAsset.EquipmentManager,
+                PersonScanning = _currentUser.Username,
+                Comment = string.Empty
+            };
+
+            // Save the discrepancy asset to the database.
+            await _databaseService.AssetDataRepository.CreateDiscrepancy(discrepancyAsset);
+        }
+
+        private async Task CreateDiscrepancyByDisposed(DisposedAsset disposedAsset)
+        {
+            // Create a discrepancy asset.
+            var discrepancyAsset = new Discrepancy
+            {
+                ResponsibleOrganization = CurrentDepartment,
+                ActualOrganization = disposedAsset.ResponsibleOrganization,
+                Location = CurrentLocation,
+                ActualLocation = disposedAsset.Location,
+                Room = CurrentRoom,
+                ActualRoom = disposedAsset.Room,
+                Barcode = disposedAsset.Barcode,
+                AssetDescription = string.Empty,
+                Manufacturer = string.Empty,
+                Make = string.Empty,
+                Model = string.Empty,
+                SerialNumber = disposedAsset.SerialNumber,
+                Ptag = disposedAsset.Ptag,
+                Otag = disposedAsset.Otag,
+                Acquired = disposedAsset.Acquired,
+                Inventoried = DateTime.Now,
+                Custodian = string.Empty,
+                EquipmentManager = string.Empty,
+                PersonScanning = _currentUser.Username,
+                Comment = "Already Disposed"
+            };
+
+            // Save the discrepancy asset to the database.
+            await _databaseService.AssetDataRepository.CreateDiscrepancy(discrepancyAsset);
+        }
+
         public async Task<bool> SaveComment(string comment)
         {
-            if (_currentAsset.Count == 0)
+            // First case is comment on a found asset, that may or may not have a discrepancy.
+            if (_currentAsset.Count > 0)
             {
                 InventoryAsset asset = _currentAsset[0];
                 asset.Comment = comment;
@@ -275,28 +431,30 @@ namespace WmMobileInventory.Services
 
                 if (asset.Discrepancy == true)
                 {
-                    await UpdateDiscrepancy(asset);
+                    await UpdateDiscrepancy(asset.Barcode, asset.Comment);
                 }
+            }
+
+            // Second case is for a discrepancy asset that was not found in the inventory.
+            // This means either found in masterassets, disposedassets, or not found at all.
+            if (Discrepancy && DiscrepancyType != "Inventory")
+            {
+                await UpdateDiscrepancy(_lastBarcode, comment);
             }
 
             return true;
         }
 
-        private async Task UpdateDiscrepancy(InventoryAsset asset)
+        private async Task UpdateDiscrepancy(string Barcode, string Comment)
         {
-            Discrepancy discrepancy = await _databaseService.AssetDataRepository.GetDiscrepancyByBarcode(asset.Barcode);
+            Discrepancy discrepancy = await _databaseService.AssetDataRepository.GetDiscrepancyByBarcode(Barcode);
             if (discrepancy != null)
             {
-                discrepancy.Comment = asset.Comment;
+                discrepancy.Comment = Comment;
                 await _databaseService.AssetDataRepository.UpdateDiscrepancy(discrepancy);
             }
         }
-
-        private async Task EvaluateNotFoundAsset(string barcode)
-        {
-            // Logic to evaluate not found asset
-            throw new NotImplementedException();
-        }        
+            
 
         public async Task<bool> MarkInventoryCompleteAsync(Schedule schedule)
         {

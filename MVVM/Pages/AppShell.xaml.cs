@@ -53,6 +53,14 @@ public partial class AppShell : Shell
                     await viewModel.RefreshNotLocatedAssets();
                 }
             }
+
+            if ((e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventoriedReviewPage/inventoried"))
+            {
+                if (this.CurrentPage.BindingContext is InventoriedReviewPageViewModel viewModel)
+                {
+                    await viewModel.RefreshLocatedAssets();
+                }
+            }
         };
 
         // Register routes for navigation

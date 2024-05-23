@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using WmAssetWebServiceClientNet.Models;
+using WmMobileInventory.MVVM.Pages;
 using WmMobileInventory.Services;
 
 namespace WmMobileInventory.MVVM.ViewModels
@@ -24,6 +26,23 @@ namespace WmMobileInventory.MVVM.ViewModels
         public async Task RefreshNotLocatedAssets()
         {
             _notLocatedAssets = new ObservableCollection<InventoryAsset>(await _inventoryService.GetNotLocatedAssetsAsync());
+        }
+
+        [RelayCommand]
+        private async Task Details(InventoryAsset asset)
+        {
+            _inventoryService.ReviewBarcode = asset.Barcode;
+            // Instantiate the AssetDetailsPage
+            var assetDetailsPage = new AssetDetailsPage(new AssetDetailsPageViewModel(_inventoryService));
+
+            // Show it as a modal
+            await Shell.Current.Navigation.PushModalAsync(assetDetailsPage);
+        }
+
+        [RelayCommand]
+        private void Comment(InventoryAsset asset)
+        {
+            // Handle the edit action
         }
     }
 }

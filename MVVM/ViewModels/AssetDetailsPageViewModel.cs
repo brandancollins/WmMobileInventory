@@ -40,6 +40,7 @@ namespace WmMobileInventory.MVVM.ViewModels
         [RelayCommand]
         public async Task CloseAssetDetails()
         {
+            _inventoryService.ReviewBarcode = string.Empty;
             await Shell.Current.Navigation.PopModalAsync();
         }
     }

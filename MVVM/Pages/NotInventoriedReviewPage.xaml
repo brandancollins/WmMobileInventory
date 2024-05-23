@@ -1,27 +1,42 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WmMobileInventory.MVVM.ViewModels"
              x:Class="WmMobileInventory.MVVM.Pages.NotInventoriedReviewPage"
              Title="NotInventoriedReviewPage">
     <ContentPage.Title>Items Not Inventoried</ContentPage.Title>
 
-
-    <CollectionView ItemsSource="{Binding NotLocatedAssets}" >
+    <CollectionView ItemsSource="{Binding NotLocatedAssets}">
         <CollectionView.ItemTemplate>
             <DataTemplate>
-                <Frame>
-                    <VerticalStackLayout  >
-                        <Label Text="{Binding Barcode}" FontSize="Medium"  TextColor="Black" 
-                               VerticalOptions="Center" HorizontalOptions="Start" />
-                        <Label Text="{Binding AssetDescription}" FontSize="Small" TextColor="{StaticResource WMVine}" 
-                               VerticalOptions="Center" HorizontalOptions="Start" />
-                        <Label Text="{Binding Location}" FontSize="Small" TextColor="{StaticResource WMVine}" 
-                                VerticalOptions="Center" HorizontalOptions="Start" />
-                        <Label Text="{Binding Room}" FontSize="Small" TextColor="{StaticResource WMVine}" 
-                                VerticalOptions="Center" HorizontalOptions="Start" />
-                        <!--Add more labels for other properties as needed-->
-                    </VerticalStackLayout>
-                </Frame>
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems>
+                            <SwipeItem Text="Comment" 
+                                       BackgroundColor="{StaticResource WMSpiritGold}" 
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NotInventoriedReviewPageViewModel}}, Path=CommentCommand}" 
+                                       CommandParameter="{Binding .}"/>
+                            <SwipeItem Text="Details" 
+                                       BackgroundColor="{StaticResource WMGreen}" 
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NotInventoriedReviewPageViewModel}}, Path=DetailsCommand}" 
+                                       CommandParameter="{Binding .}"/>
+                            
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Frame>
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Barcode}" FontSize="Medium"  TextColor="Black" 
+                                   VerticalOptions="Center" HorizontalOptions="Start" />
+                            <Label Text="{Binding AssetDescription}" FontSize="Small" TextColor="{StaticResource WMVine}" 
+                                   VerticalOptions="Center" HorizontalOptions="Start" />
+                            <Label Text="{Binding Location}" FontSize="Small" TextColor="{StaticResource WMVine}" 
+                                    VerticalOptions="Center" HorizontalOptions="Start" />
+                            <Label Text="{Binding Room}" FontSize="Small" TextColor="{StaticResource WMVine}" 
+                                    VerticalOptions="Center" HorizontalOptions="Start" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </SwipeView>
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>

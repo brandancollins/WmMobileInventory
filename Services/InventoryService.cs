@@ -19,6 +19,7 @@ namespace WmMobileInventory.Services
         bool Discrepancy { get; }
         string DiscrepancyType { get; }
         string DiscrepancyMsg { get; }
+        string ReviewBarcode { get; set; }
 
         List<InventoryAsset> GetInventoryAssets();       // This may not be needed.
 
@@ -49,6 +50,7 @@ namespace WmMobileInventory.Services
         public bool Discrepancy { get; private set; }
         public string DiscrepancyType { get; private set; }
         public string DiscrepancyMsg { get; private set; }
+        public string ReviewBarcode { get; set; }
         private int _selectedScheduleID;
         private readonly IAuthService _authService;
         private readonly DatabaseService _databaseService;
@@ -448,9 +450,16 @@ namespace WmMobileInventory.Services
 
             try
             {
-                if (_currentAsset.Count > 0)
+                if (!string.IsNullOrEmpty(ReviewBarcode))
                 {
-                    masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(_currentAsset[0].Barcode);
+                    masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(ReviewBarcode);
+                }
+                else
+                {
+                    if (_currentAsset.Count > 0)
+                    {
+                        masterAsset = await _databaseService.AssetDataRepository.GetAssetByBarcode(_currentAsset[0].Barcode);
+                    }
                 }
 
             }

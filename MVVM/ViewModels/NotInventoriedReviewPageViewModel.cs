@@ -25,7 +25,7 @@ namespace WmMobileInventory.MVVM.ViewModels
 
         public async Task RefreshNotLocatedAssets()
         {
-            _notLocatedAssets = new ObservableCollection<InventoryAsset>(await _inventoryService.GetNotLocatedAssetsAsync());
+            NotLocatedAssets = new ObservableCollection<InventoryAsset>(await _inventoryService.GetNotLocatedAssetsAsync());
         }
 
         [RelayCommand]
@@ -40,9 +40,15 @@ namespace WmMobileInventory.MVVM.ViewModels
         }
 
         [RelayCommand]
-        private void Comment(InventoryAsset asset)
+        private async Task Comment(InventoryAsset asset)
         {
             // Handle the edit action
+            _inventoryService.ReviewBarcode = asset.Barcode;
+            // Instantiate the CommentPage
+            var commentPage = new CommentsPage(new CommentPageViewModel(_inventoryService));
+
+            // Show it as a modal
+            await Shell.Current.Navigation.PushModalAsync(commentPage);
         }
     }
 }

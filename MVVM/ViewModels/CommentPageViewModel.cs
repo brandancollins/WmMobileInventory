@@ -33,14 +33,23 @@ namespace WmMobileInventory.MVVM.ViewModels
             CommentText = string.Empty;
             ButtonCancelVisible = true;
 
-            if (_inventoryService.Discrepancy && _inventoryService.DiscrepancyType != "Inventory") { ButtonCancelVisible = false; }  
-            
-            if (_inventoryService.CurrentAsset.Count > 0)
+            if (_inventoryService.Discrepancy && _inventoryService.DiscrepancyType != "Inventory") { ButtonCancelVisible = false; }
+
+            if (!string.IsNullOrEmpty(_inventoryService.ReviewBarcode))
             {
-                if (!string.IsNullOrEmpty(_inventoryService.CurrentAsset[0].Comment))
+                CommentText = _inventoryService.GetReviewAssetComment().Result;
+            }
+            else
+            {
+                if (_inventoryService.CurrentAsset.Count > 0)
                 {
-                    CommentText = _inventoryService.CurrentAsset[0].Comment;
-                    SelectedComment = "Other";
+                    if (!string.IsNullOrEmpty(_inventoryService.CurrentAsset[0].Comment))
+                    {
+                        CommentText = _inventoryService.CurrentAsset[0].Comment;
+                        SelectedComment = "Other";
+                        CustomCommentEnabled = true;
+                        ButtonSaveEnabled = true;
+                    }
                 }
             }
                    
@@ -83,6 +92,7 @@ namespace WmMobileInventory.MVVM.ViewModels
         {
             // Logic to save the comment.
             await _inventoryService.SaveComment(CommentText);
+            _inventoryService.ReviewBarcode = string.Empty;
             await Shell.Current.Navigation.PopModalAsync();
         }
 
@@ -90,6 +100,7 @@ namespace WmMobileInventory.MVVM.ViewModels
         public async Task EditCommentCancel()
         {
             // Cancel without saving the comment.
+            _inventoryService.ReviewBarcode = string.Empty;
             await Shell.Current.Navigation.PopModalAsync();
         }        
 

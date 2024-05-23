@@ -1,4 +1,5 @@
 ﻿using Android.Runtime;
+using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.Ecma_Ceiling;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,6 +38,7 @@ namespace WmMobileInventory.Services
         Task<bool> SetLocation(string Location);
         Task<bool> SetRoom(string Room);
         Task<Asset> GetMasterAsset();
+        Task<string> GetReviewAssetComment();
         Task<ObservableCollection<InventoryAsset>> GetNotLocatedAssetsAsync();
         Task<ObservableCollection<InventoryAsset>> GetLocatedAssetsAsync();
     }
@@ -202,6 +204,18 @@ namespace WmMobileInventory.Services
             Discrepancy = false;
             DiscrepancyType = string.Empty;
             DiscrepancyMsg = string.Empty;
+        }
+
+        public async Task<string> GetReviewAssetComment()
+        {
+            string comment = string.Empty;
+            InventoryAsset commentAsset = _inventoryAssets.Where(asset => asset.Barcode == ReviewBarcode).First();
+            if (commentAsset != null)
+            {
+                comment = string.IsNullOrEmpty(commentAsset.Comment) ? string.Empty : commentAsset.Comment;                
+            }
+            
+            return comment;
         }
 
         public async Task<bool> ScanAssetAsync(string barcode)
@@ -474,30 +488,57 @@ namespace WmMobileInventory.Services
             return masterAsset;
         }
         
+        private async Task<bool> SaveReviewComment(string comment)
+        {
+            InventoryAsset asset = _inventoryAssets.Where(asset => asset.Barcode == ReviewBarcode).First();
+            if (asset != null)
+            {
+                asset.Comment = comment;  // only update comment for assets that have already been inventoried.
+                if (!asset.Inventoried.HasValue)
+                {
+                    // Hasn't been inventoried.  Update the inventoried date,
+                    // set the person scanning and create a discrepancy.
+                    asset.Inventoried = DateTime.Now;
+                    asset.PersonScanning = _currentUser.Username;
+                    asset.Discrepancy = true;
+                    await CreateDiscrepancy(asset);
+                }
+                await UpdateInventoryAsset(asset);
+            }
 
+            return true;
+        }
 
         public async Task<bool> SaveComment(string comment)
         {
-            // First case is comment on a found asset, that may or may not have a discrepancy.
-            if (_currentAsset.Count > 0)
+            if (!string.IsNullOrEmpty(ReviewBarcode))
             {
-                InventoryAsset asset = _currentAsset[0];
-                asset.Comment = comment;
-                await UpdateInventoryAsset(asset);
+                await SaveReviewComment(comment);
+            }
+            else
+            {
 
-                if (asset.Discrepancy == true)
+                // First case is comment on a found asset, that may or may not have a discrepancy.
+                if (_currentAsset.Count > 0)
                 {
-                    await UpdateDiscrepancy(asset.Barcode, asset.Comment);
+                    InventoryAsset asset = _currentAsset[0];
+                    asset.Comment = comment;
+                    await UpdateInventoryAsset(asset);
+
+                    if (asset.Discrepancy == true)
+                    {
+                        await UpdateDiscrepancy(asset.Barcode, asset.Comment);
+                    }
                 }
-            }
 
-            // Second case is for a discrepancy asset that was not found in the inventory.
-            // This means either found in masterassets, disposedassets, or not found at all.
-            if (Discrepancy && DiscrepancyType != "Inventory")
-            {
-                await UpdateDiscrepancy(_lastBarcode, comment);
-            }
+                // Second case is for a discrepancy asset that was not found in the inventory.
+                // This means either found in masterassets, disposedassets, or not found at all.
+                if (Discrepancy && DiscrepancyType != "Inventory")
+                {
+                    await UpdateDiscrepancy(_lastBarcode, comment);
+                }
 
+            }
             return true;
         }
 

@@ -3,10 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="WmMobileInventory.MVVM.Pages.InventoriedReviewPage"
              Title="InventoriedReviewPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ContentPage.Title>Items Inventoried</ContentPage.Title>
+
+
+    <CollectionView ItemsSource="{Binding LocatedAssets}" >
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <Frame>
+                    <VerticalStackLayout  >
+                        <Label Text="{Binding Barcode}" FontSize="Medium"  TextColor="Black" 
+                            VerticalOptions="Center" HorizontalOptions="Start" />
+                        <Label Text="{Binding AssetDescription}" FontSize="Small" TextColor="{StaticResource WMVine}" 
+                            VerticalOptions="Center" HorizontalOptions="Start" />
+                        <Label Text="{Binding Location}" FontSize="Small" TextColor="{StaticResource WMVine}" 
+                             VerticalOptions="Center" HorizontalOptions="Start" />
+                        <Label Text="{Binding Room}" FontSize="Small" TextColor="{StaticResource WMVine}" 
+                             VerticalOptions="Center" HorizontalOptions="Start" />
+                        <!--Add more labels for other properties as needed-->
+                    </VerticalStackLayout>
+                </Frame>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
 </ContentPage>

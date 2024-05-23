@@ -36,6 +36,8 @@ namespace WmMobileInventory.Services
         Task<bool> SetLocation(string Location);
         Task<bool> SetRoom(string Room);
         Task<Asset> GetMasterAsset();
+        Task<ObservableCollection<InventoryAsset>> GetNotLocatedAssetsAsync();
+        Task<ObservableCollection<InventoryAsset>> GetLocatedAssetsAsync();
     }
 
     public class InventoryService : IInventoryService
@@ -82,7 +84,7 @@ namespace WmMobileInventory.Services
 
         private void LoadComments()
         {
-            /* Canned Comments, adding Wrong location & Wrong room to the list.
+            /* Canned Comments, using Wrong location & Wrong room in some of the auto populated comments in code.
             Cannot access Barcode
             Already Disposed
             Wrong department
@@ -94,6 +96,26 @@ namespace WmMobileInventory.Services
             _inventoryComments.Add("Wrong department");
             _inventoryComments.Add("Cannot Find");
             _inventoryComments.Add("Other");
+        }
+
+        public Task<ObservableCollection<InventoryAsset>> GetNotLocatedAssetsAsync()
+        {
+            var notLocatedAssets = _inventoryAssets
+                                        .Where(a=> !a.Inventoried.HasValue)
+                                        .OrderBy(a=> a.Location)
+                                        .OrderBy(a=> a.Room)
+                                        .ToList();
+            return Task.FromResult(new ObservableCollection<InventoryAsset>(notLocatedAssets));
+        }
+
+        public Task<ObservableCollection<InventoryAsset>> GetLocatedAssetsAsync()
+        {
+            var locatedAssets = _inventoryAssets
+                                        .Where(a => a.Inventoried.HasValue)
+                                        .OrderBy(a => a.Location)
+                                        .OrderBy(a => a.Room)
+                                        .ToList();
+            return Task.FromResult(new ObservableCollection<InventoryAsset>(locatedAssets));
         }
 
         public async Task<bool> StartInventoryAsync(Schedule schedule)

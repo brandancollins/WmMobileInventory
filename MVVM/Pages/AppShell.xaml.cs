@@ -39,7 +39,6 @@ public partial class AppShell : Shell
             if ((e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventory/scanAssetPage") ||
                 (e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventory/scanAssetPage"))
             {
-                // Assuming your SelectRoomPage's BindingContext is set to SelectRoomPageViewModel
                 if (this.CurrentPage.BindingContext is ScanAssetPageViewModel viewModel)
                 {
                     viewModel.SetTitleText();
@@ -59,6 +58,15 @@ public partial class AppShell : Shell
                 if (this.CurrentPage.BindingContext is InventoriedReviewPageViewModel viewModel)
                 {
                     await viewModel.RefreshLocatedAssets();
+                }
+            }
+
+            if ((e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventoriedReviewPage/summary") ||
+                (e.Source == ShellNavigationSource.ShellItemChanged && e.Current.Location.ToString() == "//inventoriedReviewPage/summary"))
+            {
+                if (this.CurrentPage.BindingContext is SummaryReviewPageViewModel viewModel)
+                {
+                    await viewModel.RefreshSummary();
                 }
             }
         };

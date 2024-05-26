@@ -1,4 +1,5 @@
 ﻿using MAUI.MSALClient;
+using Microsoft.Graph.Drives.Item.Items.Item.GetActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithInterval;
 using Microsoft.Identity.Client;
 using WmAssetWebServiceClientNet.Models;
 using WmMobileInventory.MVVM.Models;
@@ -19,6 +20,8 @@ public interface IAuthService
 public class AuthService : IAuthService
 {
     private readonly DatabaseService _databaseService;
+    private readonly ConfigurationService  _configurationService;
+    private string _accessToken;
     private Timer? _logoutTimer;
 
     public CurrentUser CurrentUser { get; }
@@ -26,19 +29,26 @@ public class AuthService : IAuthService
     public bool IsLoggedIn { get; private set; }
     public string LoginMessage { get; private set; } = string.Empty;
 
-    public AuthService(DatabaseService databaseService)
+    public AuthService(DatabaseService databaseService, ConfigurationService configurationService)
     {
         _databaseService = databaseService;
         IsLoggedIn = false;
         CurrentUser = new CurrentUser();
+        _configurationService = configurationService;
     }
 
     public async Task LoginAsync()
     {
+        var configuration = await _configurationService.GetConfigurationAsync();
+        string[] _scopes = configuration.AzureAD.ApiScopes.Split(',');
         PublicClientSingleton.Instance.UseEmbedded = false;
         try
         {
-            await PublicClientSingleton.Instance.AcquireTokenSilentAsync();
+            _accessToken = await PublicClientSingleton.Instance.AcquireTokenSilentAsync(_scopes);
+            if (!string.IsNullOrEmpty(_accessToken))
+            {
+                _databaseService.AssetDataRepository.SetAccessToken(_accessToken);
+            }
         }
         catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
         {

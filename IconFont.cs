@@ -14,5 +14,6 @@
         public const string Login = "\uea77";
         public const string Room = "\ueb4f";
         public const string Search = "\ue8b6";
+        public const string Summary = "\uf071";
     }    
 }

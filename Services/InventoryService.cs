@@ -1,12 +1,5 @@
-﻿using Android.Runtime;
-using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.Ecma_Ceiling;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WmAssetWebServiceClientNet.Models;
 using WmMobileInventory.MVVM.Models;
 
@@ -39,8 +32,14 @@ namespace WmMobileInventory.Services
         Task<bool> SetRoom(string Room);
         Task<Asset> GetMasterAsset();
         Task<string> GetReviewAssetComment();
+        string GetAssetCount();
+        Task<string> GetLocatedAssetCount();
+        Task<string> GetNotLocatedAssetCount();
+        string GetScheduledStartDate();
+        string GetScheduledEndDate();
         Task<ObservableCollection<InventoryAsset>> GetNotLocatedAssetsAsync();
         Task<ObservableCollection<InventoryAsset>> GetLocatedAssetsAsync();
+        Task<List<InventorySummary>> GetInventorySummariesAsync();
     }
 
     public class InventoryService : IInventoryService
@@ -53,7 +52,9 @@ namespace WmMobileInventory.Services
         public string DiscrepancyType { get; private set; }
         public string DiscrepancyMsg { get; private set; }
         public string ReviewBarcode { get; set; }
-        private int _selectedScheduleID;
+        private int? _selectedScheduleID;
+        private string _selectedScheduleStartDate;
+        private string _selectedScheduleEndDate;
         private readonly IAuthService _authService;
         private readonly DatabaseService _databaseService;
         private List<InventoryAsset> _inventoryAssets;
@@ -160,6 +161,8 @@ namespace WmMobileInventory.Services
         {
             // Logic to continue inventory
             _selectedScheduleID = schedule.Id;
+            _selectedScheduleStartDate = schedule.StartDate.GetValueOrDefault().ToLongDateString();
+            _selectedScheduleEndDate = schedule.EndDate.GetValueOrDefault().ToLongDateString();
             CurrentDepartment = schedule.Department;
             CurrentLocation = string.Empty;
             CurrentRoom = string.Empty;
@@ -252,7 +255,7 @@ namespace WmMobileInventory.Services
             // and it's personscanning to the current username.
             InventoryAsset asset = _currentAsset[0];
             asset.Found = true;
-            asset.Inventoried = DateTime.Now;
+            if (!asset.Inventoried.HasValue) { asset.Inventoried = DateTime.Now; }
             asset.PersonScanning = _currentUser.Username;
 
             if (!(asset.ResponsibleOrganization == CurrentDepartment && asset.Location == CurrentLocation && asset.Room == CurrentRoom))
@@ -564,6 +567,9 @@ namespace WmMobileInventory.Services
                 _inventoryAssets = new List<InventoryAsset>();
                 _schedules = Enumerable.Empty<Schedule>();
                 _inventoryLocations = new ObservableCollection<string>();
+                _selectedScheduleID = null;
+                _selectedScheduleStartDate = string.Empty;
+                _selectedScheduleEndDate = string.Empty;
                 CurrentDepartment = string.Empty;
                 CurrentLocation = string.Empty;
                 CurrentRoom = string.Empty;
@@ -612,6 +618,49 @@ namespace WmMobileInventory.Services
         {
             CurrentRoom = Room;
             return true;
+        }
+
+        public string GetAssetCount()
+        {
+            return _inventoryAssets.Count.ToString();
+        }
+
+        public async Task<string> GetLocatedAssetCount()
+        {
+            var la = await GetLocatedAssetsAsync();
+            return la.Count.ToString();
+        }
+
+        public async Task<string> GetNotLocatedAssetCount()
+        {
+            var na = await GetNotLocatedAssetsAsync();
+            return na.Count.ToString();
+        }
+
+        public string GetScheduledStartDate()
+        {
+            return _selectedScheduleStartDate;
+        }
+
+        public string GetScheduledEndDate()
+        {
+            return _selectedScheduleEndDate;
+        }
+
+        public async Task<List<InventorySummary>> GetInventorySummariesAsync()
+        {
+            var inventorySummaries = _inventoryAssets
+                .GroupBy(asset => new { asset.Location, asset.Room })
+                .Select(group => new InventorySummary
+                {
+                    Building = group.Key.Location,
+                    Room = group.Key.Room,
+                    Found = group.Count(asset => asset.Found).ToString(),
+                    NotFound = group.Count(asset => !asset.Found).ToString()
+                })
+                .ToList();
+
+            return inventorySummaries;
         }
     }
 

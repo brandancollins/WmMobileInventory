@@ -18,6 +18,7 @@
         public string TenantId { get; set; }
         public string ClientId { get; set; }
         public string RedirectURI { get; set; }
+        public string ApiScopes { get; set; }
         public string AndroidRedirectUri { get; set; }
         public string iOSRedirectUri { get; set; }
         public string CacheFileName { get; set; }

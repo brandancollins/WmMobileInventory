@@ -32,6 +32,7 @@ namespace WmMobileInventory
             builder.Services.AddTransient<ScanAssetPage>();
             builder.Services.AddTransient<InventoriedReviewPage>();
             builder.Services.AddTransient<NotInventoriedReviewPage>();
+            builder.Services.AddTransient<SummaryReviewPage>();
 
             // view models
             builder.Services.AddTransient<LoginPageViewModel>();
@@ -41,6 +42,7 @@ namespace WmMobileInventory
             builder.Services.AddTransient<ScanAssetPageViewModel>();
             builder.Services.AddTransient<InventoriedReviewPageViewModel>();
             builder.Services.AddTransient<NotInventoriedReviewPageViewModel>();
+            builder.Services.AddTransient<SummaryReviewPageViewModel>();
 
             // services
             builder.Services.AddSingleton<ConfigurationService>();

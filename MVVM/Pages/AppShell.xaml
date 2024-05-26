@@ -129,6 +129,16 @@
         <FlyoutItem.Icon>
             <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Inventory}" />
         </FlyoutItem.Icon>
+        <Tab Title="Summary" Route="summary">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Summary}" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate pages:SummaryReviewPage}" Title="Inventory Review" >
+                <ShellContent.Icon>
+                    <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.Summary}" />
+                </ShellContent.Icon>
+            </ShellContent>
+        </Tab>
         <Tab Title="Not Inventoried" Route="notInventoried">
             <Tab.Icon>
                 <FontImageSource FontFamily="MaterialSymbols" Color="{StaticResource WMGreen}" Glyph="{x:Static local:IconFont.BoxNotChecked}" />

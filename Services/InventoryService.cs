@@ -132,6 +132,7 @@ namespace WmMobileInventory.Services
                 // update the schedule actual startdate.
                 Schedule updateSchedule = schedule;
                 updateSchedule.ActualStartDate = DateTime.Now;
+                updateSchedule.Started = true;
                 await _databaseService.AssetDataRepository.UpdateSchedule(updateSchedule);
                 return true;
             }
@@ -569,6 +570,8 @@ namespace WmMobileInventory.Services
                         return false;
                     }
                 }
+
+               
 
                 // update the schedule actual completeddate.
                 Schedule updateSchedule = schedule;

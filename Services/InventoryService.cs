@@ -560,6 +560,16 @@ namespace WmMobileInventory.Services
         {
             try
             {
+                if (schedule.Started == true)
+                {
+                    _= await ContinueInventoryAsync(schedule);
+                    int notFound = (await GetNotLocatedAssetsAsync()).Count;
+                    if (notFound > 0)
+                    {
+                        return false;
+                    }
+                }
+
                 // update the schedule actual completeddate.
                 Schedule updateSchedule = schedule;
                 updateSchedule.CompletedDate = DateTime.Now;
@@ -592,6 +602,13 @@ namespace WmMobileInventory.Services
                 {
                     _schedules = _schedules.Where(s => _currentUser.Departments.Contains(s.Department));
                 }
+
+                // Add filter to only return one record per department. with that record being the 
+                // one with the closest start date.
+                var groupedSchedules = _schedules.GroupBy(s => s.Department);
+                _schedules = groupedSchedules.Select(group =>
+                        group.OrderBy(s => Math.Abs((s.StartDate.Value - DateTime.Today).TotalDays)).First());
+
 
                 return _schedules;
             }

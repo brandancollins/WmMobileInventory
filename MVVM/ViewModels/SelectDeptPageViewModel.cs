@@ -72,12 +72,10 @@ namespace WmMobileInventory.MVVM.ViewModels
                 CompleteButtonVisible = false;
                 if (SelectedSchedule.ActualStartDate == null)
                 {
-                    //_inventoryService.SetDepartment(string.Empty);
                     ButtonText = "Start Inventory";
                 }
                 else
                 {
-                    //_inventoryService.SetDepartment(SelectedSchedule.Department);
                     ButtonText = "Continue Inventory";
                     CompleteButtonVisible = true;
                 }
@@ -109,12 +107,22 @@ namespace WmMobileInventory.MVVM.ViewModels
         {
             if (SelectedSchedule != null)
             {
-                _ = await _inventoryService.MarkInventoryCompleteAsync(SelectedSchedule);
-                CompleteButtonVisible = false;
-                ButtonVisible = false;
-                ButtonText = string.Empty;
-                var obj = await _inventoryService.GetSchedulesForUser();
-                Schedules = new ObservableCollection<Schedule>(obj);
+                // Verify that there aren't any uninventoried assets.  If there are display a
+                // message to the user and don't let them complete the inventory.
+                bool completed = await _inventoryService.MarkInventoryCompleteAsync(SelectedSchedule);
+                if (completed == true)
+                {
+                    CompleteButtonVisible = false;
+                    ButtonVisible = false;
+                    ButtonText = string.Empty;
+                    var obj = await _inventoryService.GetSchedulesForUser();
+                    Schedules = new ObservableCollection<Schedule>(obj);
+                }
+                else
+                {
+                    // display a message to the user that there are uninventoried assets.
+                    await Shell.Current.DisplayAlert("Uninventoried Assets", "There are uninventoried assets.  Please inventory all assets.  If assets can't be found go to Review Inventory, Not Inventoried, and add a comment.", "OK");
+                }
             }
         }
     }

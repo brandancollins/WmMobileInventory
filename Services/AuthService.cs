@@ -1,9 +1,7 @@
 ﻿using MAUI.MSALClient;
-using Microsoft.Graph.Drives.Item.Items.Item.GetActivitiesByIntervalWithStartDateTimeWithEndDateTimeWithInterval;
 using Microsoft.Identity.Client;
 using WmAssetWebServiceClientNet.Models;
 using WmMobileInventory.MVVM.Models;
-using static Android.Media.MediaDrm;
 
 namespace WmMobileInventory.Services;
 
@@ -14,7 +12,7 @@ public interface IAuthService
     string LoginMessage { get; }
     Task LoginAsync();
     Task LogoutAsync();
-    Task TrackLoginStatusAsync();
+    //Task TrackLoginStatusAsync();
 }
 
 public class AuthService : IAuthService
@@ -23,6 +21,7 @@ public class AuthService : IAuthService
     private readonly ConfigurationService  _configurationService;
     private string _accessToken;
     private Timer? _logoutTimer;
+    private Timer? _tokenStatusTimer;
 
     public CurrentUser CurrentUser { get; }
 
@@ -79,6 +78,7 @@ public class AuthService : IAuthService
                     CurrentUser.AllDepartments = dbuser.AllDepartments;
                     CurrentUser.Username = displayName;
                     StartLogoutTimer();
+                    SetupTokenStatusTimer(PublicClientSingleton.Instance.MSALClientHelper.AuthResult.ExpiresOn);
                 }
             }
             catch (Exception dsEx)
@@ -87,6 +87,35 @@ public class AuthService : IAuthService
                 Console.WriteLine(dsEx.InnerException.Message);
 
             }
+        }
+    }
+
+    private async Task LoginRefresh()
+    {
+        var configuration = await _configurationService.GetConfigurationAsync();
+        string[] _scopes = configuration.AzureAD.ApiScopes.Split(',');
+        PublicClientSingleton.Instance.UseEmbedded = false;
+        try
+        {
+            _accessToken = await PublicClientSingleton.Instance.AcquireTokenSilentAsync(_scopes);
+            if (!string.IsNullOrEmpty(_accessToken))
+            {
+                _databaseService.AssetDataRepository.SetAccessToken(_accessToken);
+            }
+            else
+            {
+                await LogoutAsync();
+            }
+        }
+        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
+        {
+            LoginMessage = "User cancelled sign in.";
+            return;
+        }
+        catch (MsalServiceException ex) when (ex.Message.Contains("AADSTS65004"))
+        {
+            LoginMessage = "User did not consent to app requirements.";
+            return;
         }
     }
 
@@ -109,18 +138,39 @@ public class AuthService : IAuthService
         }, null, TimeSpan.FromHours(4), Timeout.InfiniteTimeSpan);
     }
 
+    private void SetupTokenStatusTimer(DateTimeOffset expiresOn)
+    {
+        TimeSpan interval = expiresOn - DateTimeOffset.Now;
+        // Convert the interval to milliseconds
+        int dueTime = (int)interval.TotalMilliseconds;
+
+        // Create the timer and pass the interval and the callback method
+        _tokenStatusTimer = new Timer(TokenStatusTimerCallback, null, dueTime, Timeout.Infinite);
+    }
+
+    private async void TokenStatusTimerCallback(object? state)
+    {
+        // Token has expired, acquire a new one
+        await LoginRefresh();
+        // Dispose of the timer if it's no longer needed
+        SetupTokenStatusTimer(PublicClientSingleton.Instance.MSALClientHelper.AuthResult.ExpiresOn);
+    }
+
+
     private void StopLogoutTimer()
     {
         _logoutTimer?.Dispose();
         _logoutTimer = null;
+        _tokenStatusTimer?.Dispose();
+        _tokenStatusTimer = null;
     }
 
-    public async Task TrackLoginStatusAsync()
-    {
-        while (IsLoggedIn)
-        {
-            await Task.Delay(1000);
-            // Add any additional tracking logic here
-        }
-    }
+    //public async Task TrackLoginStatusAsync()
+    //{
+    //    while (IsLoggedIn)
+    //    {
+    //        await Task.Delay(1000);
+    //        // Add any additional tracking logic here
+    //    }
+    //}
 }

@@ -142,7 +142,7 @@ public class AuthService : IAuthService
     {
         TimeSpan interval = expiresOn - DateTimeOffset.Now;
         // Convert the interval to milliseconds
-        int dueTime = (int)interval.TotalMilliseconds;
+        int dueTime = 1 + (int)interval.TotalMilliseconds;
 
         // Create the timer and pass the interval and the callback method
         _tokenStatusTimer = new Timer(TokenStatusTimerCallback, null, dueTime, Timeout.Infinite);

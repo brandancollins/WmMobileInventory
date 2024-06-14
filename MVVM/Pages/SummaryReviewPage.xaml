@@ -13,12 +13,12 @@
         <Label Text="{Binding CurrentDepartment}"
                TextColor="{StaticResource WMGreen}"
                FontAttributes="Bold"
-               FontSize="Title"
+               FontSize="Subtitle"
                HorizontalOptions="Center" />
 
 
         <Grid Padding="10,20,10,0" RowDefinitions="Auto"               
-              ColumnDefinitions="2.1*,.60*,1.3*,1.3*">
+              ColumnDefinitions="2.1*,.7*,1.3*,1.3*">
             
             <Label TextDecorations="Underline" FontAttributes="Bold" 
                    VerticalOptions="End"
@@ -37,9 +37,9 @@
         <CollectionView ItemsSource="{Binding InventorySummaries}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="10,5,10,0" RowDefinitions="Auto" ColumnDefinitions="1.9*,.6*,.9*,1.1*">
-                        <Label Grid.Column="0" Text="{Binding Building}"  />
-                        <Label Grid.Column="1" Text="{Binding Room}" HorizontalOptions="Start" />
+                    <Grid Padding="10,5,10,0" RowDefinitions="Auto" ColumnDefinitions="1.9*,.7*,1.1*,1.2*">
+                        <Label Grid.Column="0" Text="{Binding Building}" FontSize="Small"  />
+                        <Label Grid.Column="1" Text="{Binding Room}" FontSize="Small" HorizontalOptions="Start" />
                         <Label Grid.Column="2" Text="{Binding Found}" HorizontalOptions="Center" />
                         <Label Grid.Column="3" Text="{Binding NotFound}" HorizontalOptions="Center" />
                     </Grid>

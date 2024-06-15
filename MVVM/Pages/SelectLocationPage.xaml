@@ -7,14 +7,13 @@
     <Grid Padding="10">
         <Grid.RowDefinitions>
             <RowDefinition Height=".5*" />
-            <RowDefinition Height="3*" />
+            <RowDefinition Height="2.5*" />
             <RowDefinition Height=".5*" />
-            <RowDefinition Height=".75*" />
-            <RowDefinition Height=".75*" />
+            <RowDefinition Height="1*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Text="Select a location from the list" 
-           FontSize="Medium" 
+           FontSize="Subtitle" 
            HorizontalOptions="Center" />
 
         <!-- ListView -->
@@ -29,10 +28,10 @@
         </ListView>
 
         <Label Grid.Row="2" Text="{Binding SelectedLocation}" 
-           FontSize="Large" 
+           FontSize="Medium" 
            HorizontalOptions="Center" />
 
-        <Button Grid.Row="3" Margin="20"
+        <Button Grid.Row="3" Margin="10"
             FontSize="Medium"
             Text="Next =>" IsVisible="{Binding ButtonVisible}"
             BackgroundColor="{StaticResource WMGreen}"

@@ -45,7 +45,8 @@ public partial class AppShell : Shell
                     viewModel.RefreshCurrentAsset();
                 }
             }
-            if ((e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventoriedReviewPage/notInventoried"))
+            if ((e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventoriedReviewPage/notInventoried") ||
+                (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventoriedReviewPage/notInventoried"))
             {
                 if (this.CurrentPage.BindingContext is NotInventoriedReviewPageViewModel viewModel)
                 {
@@ -53,7 +54,8 @@ public partial class AppShell : Shell
                 }
             }
 
-            if ((e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventoriedReviewPage/inventoried"))
+            if ((e.Source == ShellNavigationSource.PopToRoot && e.Current.Location.ToString() == "//inventoriedReviewPage/inventoried") ||
+                (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventoriedReviewPage/inventoried"))
             {
                 if (this.CurrentPage.BindingContext is InventoriedReviewPageViewModel viewModel)
                 {

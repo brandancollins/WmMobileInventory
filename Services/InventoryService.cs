@@ -451,7 +451,7 @@ namespace WmMobileInventory.Services
                 Ptag = disposedAsset.Ptag,
                 Otag = disposedAsset.Otag,
                 Acquired = disposedAsset.Acquired,
-                Inventoried = DateTime.Now,
+                Inventoried = DateTime.Now,   
                 Custodian = string.Empty,
                 EquipmentManager = string.Empty,
                 PersonScanning = _currentUser.Username,

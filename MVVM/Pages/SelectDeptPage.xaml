@@ -7,15 +7,15 @@
     <Grid Padding="10">
         <Grid.RowDefinitions>
             <RowDefinition Height=".5*" />
-            <RowDefinition Height="3*" />
-            <RowDefinition Height=".5*" />
-            <RowDefinition Height=".75*" />
-            <RowDefinition Height=".75*" />
+            <RowDefinition Height="2.0*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1.05*" />
+            <RowDefinition Height="1.05*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Label Grid.Row="0" Text="Select a department from the list" 
-               FontSize="Medium" 
+               FontSize="Subtitle" 
                HorizontalOptions="Center" />
 
         <!-- ListView -->
@@ -24,7 +24,7 @@
                   HeightRequest="350" VerticalOptions="Start">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextCell Text="{Binding Department}" />
+                    <TextCell Text="{Binding Department}"  />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -36,10 +36,10 @@
                 Title="Select an item" />-->
         
         <Label Grid.Row="2" Text="{Binding SelectedSchedule.Department}" 
-               FontSize="Large" 
+               FontSize="Medium" 
                HorizontalOptions="Center" />
 
-            <Button Grid.Row="3" Margin="20"
+            <Button Grid.Row="3" Margin="10"
                 FontSize="Medium"
                 Text="{Binding ButtonText}" IsVisible="{Binding ButtonVisible}"
                 BackgroundColor="{StaticResource WMGreen}"
@@ -47,7 +47,7 @@
                 Command="{Binding StartContinueCommand }"                
                 HorizontalOptions="Fill" />
 
-            <Button Grid.Row="4" Margin="20"
+            <Button Grid.Row="4" Margin="10"
                 FontSize="Medium"
                 Text="Complete Inventory" IsVisible="{Binding CompleteButtonVisible}"
                 BackgroundColor="{StaticResource WMGold}"

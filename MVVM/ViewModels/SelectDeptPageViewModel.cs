@@ -117,6 +117,7 @@ namespace WmMobileInventory.MVVM.ViewModels
                     ButtonText = string.Empty;
                     var obj = await _inventoryService.GetSchedulesForUser();
                     Schedules = new ObservableCollection<Schedule>(obj);
+                    SelectedSchedule = null;
                 }
                 else
                 {

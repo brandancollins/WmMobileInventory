@@ -675,8 +675,8 @@ namespace WmMobileInventory.Services
                 {
                     Building = group.Key.Location,
                     Room = group.Key.Room,
-                    Found = group.Count(asset => asset.Found).ToString(),
-                    NotFound = group.Count(asset => !asset.Found).ToString()
+                    Found = group.Count(asset => asset.Inventoried.HasValue).ToString(),
+                    NotFound = group.Count(asset => !asset.Inventoried.HasValue).ToString()
                 })
                 .ToList();
 

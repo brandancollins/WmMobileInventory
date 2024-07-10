@@ -102,7 +102,8 @@ namespace WmMobileInventory.MVVM.ViewModels
             CurrentAsset = new ObservableCollection<InventoryAsset>(_inventoryService.CurrentAsset);
             EditButtonEnabled = CurrentAsset.Count > 0;
             AssetDetailsButtonEnabled = CurrentAsset.Count > 0;
-
+            OnScanCompleted();
+            
         }
 
         protected virtual void OnScanCompleted()

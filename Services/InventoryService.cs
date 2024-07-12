@@ -96,11 +96,18 @@ namespace WmMobileInventory.Services
             Cannot Find
             Other (comment field opens for explanation)
             */
-            _inventoryComments.Add("Cannot access Barcode");
-            _inventoryComments.Add("Already Disposed");
-            _inventoryComments.Add("Wrong department");
-            _inventoryComments.Add("Cannot Find");
-            _inventoryComments.Add("Other");
+
+            // Pull comments from the comments table.
+            var comments = _databaseService.AssetDataRepository.GetComments().Result;
+            foreach (var comment in comments)
+            {
+                Comments.Add(comment.CommentText);
+            }
+
+            if (!_inventoryComments.Contains("Other"))
+            {
+                _inventoryComments.Add("Other");
+            }
         }
 
         public Task<ObservableCollection<InventoryAsset>> GetNotLocatedAssetsAsync()

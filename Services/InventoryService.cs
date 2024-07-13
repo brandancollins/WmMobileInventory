@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using WmAssetWebServiceClientNet.Models;
 using WmMobileInventory.MVVM.Models;
@@ -84,7 +85,7 @@ namespace WmMobileInventory.Services
             CurrentDepartment = string.Empty;
             CurrentLocation = string.Empty;
             CurrentRoom = string.Empty;
-            LoadComments();
+            //LoadComments();
         }
 
         private void LoadComments()
@@ -99,6 +100,7 @@ namespace WmMobileInventory.Services
 
             // Pull comments from the comments table.
             var comments = _databaseService.AssetDataRepository.GetComments().Result;
+            //comments = comments.OrderBy(c => c.CommentText);
             foreach (var comment in comments)
             {
                 Comments.Add(comment.CommentText);
@@ -179,6 +181,12 @@ namespace WmMobileInventory.Services
             var ieInvAssets = await _databaseService.AssetDataRepository.GetInventoryAssetsForDepartment(schedule.Department);
             _inventoryAssets = ieInvAssets.ToList();
             _inventoryLocations = new ObservableCollection<string>(await SetAvailableLocationsAsync());
+
+            // make sure the list of comments is available.
+            if (_inventoryComments.IsNullOrEmpty())
+            {
+                LoadComments();
+            }
         }
 
         private Task<List<string>> SetAvailableLocationsAsync()

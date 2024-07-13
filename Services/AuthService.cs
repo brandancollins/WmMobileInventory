@@ -76,7 +76,7 @@ public class AuthService : IAuthService
                     IsLoggedIn = true;
                     CurrentUser.Departments = dbuser.Departments;
                     CurrentUser.AllDepartments = dbuser.AllDepartments;
-                    CurrentUser.Username = displayName;
+                    CurrentUser.Username = displayName;                    
                     StartLogoutTimer();
                     SetupTokenStatusTimer(PublicClientSingleton.Instance.MSALClientHelper.AuthResult.ExpiresOn);
                 }

@@ -37,7 +37,7 @@ namespace WmMobileInventory.MVVM.ViewModels
              DoOtherInit();
         }
 
-        private async void DoOtherInit()
+        public async void DoOtherInit()
         {
             if (!string.IsNullOrEmpty(_inventoryService.CurrentDepartment))
             {
@@ -61,7 +61,7 @@ namespace WmMobileInventory.MVVM.ViewModels
             }
         }
 
-        private void OnSelectedItemChanged()
+        public void OnSelectedItemChanged()
         {
             // React to the selected item change
             Debug.WriteLine($"Selected Item: {SelectedSchedule}");

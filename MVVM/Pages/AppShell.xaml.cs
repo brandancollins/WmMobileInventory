@@ -28,6 +28,14 @@ public partial class AppShell : Shell
                     await _authService.LogoutAsync();
                 }
             }
+            if ((e.Source == ShellNavigationSource.ShellSectionChanged || e.Source == ShellNavigationSource.ShellItemChanged ) && 
+                 e.Current.Location.ToString() == "//inventory/selectDeptPage")
+            {
+                if (this.CurrentPage.BindingContext is SelectDeptPageViewModel viewModel)
+                {
+                    viewModel.OnSelectedItemChanged();
+                }
+            }
             if (e.Source == ShellNavigationSource.ShellSectionChanged && e.Current.Location.ToString() == "//inventory/selectRoomPage")
             {
                 // Assuming your SelectRoomPage's BindingContext is set to SelectRoomPageViewModel
